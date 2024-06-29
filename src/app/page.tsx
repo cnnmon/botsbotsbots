@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useRef, useState } from "react";
-import { Character, CharacterName, Message, characters } from "../utils/constants";
-import { answerQuestion, generateQuestion, voteOnHuman, tallyVotes } from "../utils/bot";
+import { CharacterName, Message, characters, ROUNDS_TO_SURVIVE } from "../utils/constants";
+import { answerQuestion, generateQuestion, voteOnHuman, tallyVotes, promptForRound } from "../utils/bot";
 
 enum Stage {
   Start = "Start",
@@ -15,6 +15,7 @@ export default function Home() {
   const [stage, setStage] = useState<Stage>(Stage.Start);
   const [message, setMessage] = useState<string>("");
   const [humanPlayer, setHumanPlayer] = useState<CharacterName | undefined>(undefined);
+  const [rounds, setRounds] = useState(0);
 
   function wait(ms: number = 100) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -39,6 +40,10 @@ export default function Home() {
         setHumanPlayer(humanPlayer);
 
         const startingPlayer = Math.floor(Math.random() * characters.length);
+        const systemMessage = promptForRound(rounds, startingPlayer);
+        setChatHistory(prev => [...prev, systemMessage]);
+        wait();
+
         const startingMessage: Message = {
           sender: CharacterName.System,
           content: `Welcome to the game. All of you are AI, except one. The human is trying to blend in with the AI. The AI are trying to figure out who the human is. The human wins if they are not discovered. The AI win if they correctly identify the human. To start, let's have ${characters[startingPlayer].name} propose a question to the group.`
@@ -84,8 +89,18 @@ export default function Home() {
         }
 
         const maxVoteGetter = tallyVotes(votes);
-        console.log("maxVoteGetter", maxVoteGetter);
-        return;
+        // TODO: remove player via state 
+  
+        if (rounds == ROUNDS_TO_SURVIVE) {
+          const finalMessage: Message = {
+            sender: CharacterName.System,
+            content: `The game is over. The human was _____.`
+          };
+          updateChat(finalMessage);
+          return;
+        }
+  
+        setRounds(prev => prev + 1);
       }
     }
 
@@ -94,7 +109,7 @@ export default function Home() {
     return () => {
       ref.current = true;
     };
-  }, [stage]);
+  }, [stage, rounds]);
 
   const handleHumanResponse = () => {
     const newMessage: Message = {
