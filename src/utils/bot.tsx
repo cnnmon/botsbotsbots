@@ -108,4 +108,24 @@ async function voteOnHuman(character: Character, chatHistory: Message[]): Promis
   }
 }
 
-export { answerQuestion, generateQuestion, voteOnHuman }
+// If there is a tie in the voting, return null, otherwise return most voted character
+function tallyVotes(votes: CharacterName[]): CharacterName | null {
+  const frequencyMap: Record<CharacterName, number> = votes.reduce((map, item) => {
+    map[item] = (map[item] || 0) + 1;
+    return map;
+  }, {} as Record<CharacterName, number>);
+
+  const maxVotes = Math.max(...Object.values(frequencyMap));
+
+  const voteGetters = Object.keys(frequencyMap).filter(
+    key => frequencyMap[key as CharacterName] === maxVotes
+  );
+
+  if (voteGetters.length > 1) {
+    return null;
+  }
+  return voteGetters[0] as CharacterName;
+}
+
+
+export { answerQuestion, generateQuestion, voteOnHuman, tallyVotes }

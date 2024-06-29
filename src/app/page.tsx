@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useRef, useState } from "react";
 import { CharacterName, Message, characters } from "../utils/constants";
-import { answerQuestion, generateQuestion, voteOnHuman } from "../utils/bot";
+import { answerQuestion, generateQuestion, voteOnHuman, tallyVotes } from "../utils/bot";
 
 export default function Home() {
   const ref = useRef(false);
@@ -45,11 +45,19 @@ export default function Home() {
 
       // ask the players to vote on who they think is the human
       // remove the player with the most votes
+      const votes: CharacterName[] = []
       for (let i = 0; i < characters.length; i++) {
         const vote = await voteOnHuman(characters[i], localHistory);
+
+        if (vote.content !== "I abstain from voting.") {
+          votes.push(vote.sender);
+        }
         updateChat(vote);
         wait();
       }
+
+      const maxVoteGetter = tallyVotes(votes);
+      // TODO: remove player via state 
     }
 
     startGame();
