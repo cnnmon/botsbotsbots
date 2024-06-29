@@ -1,11 +1,12 @@
 "use client"
 import { useEffect, useRef, useState } from "react";
-import { CharacterName, Message, characters } from "../utils/constants";
-import { answerQuestion, generateQuestion, voteOnHuman, tallyVotes } from "../utils/bot";
+import { CharacterName, Message, characters, ROUNDS_TO_SURVIVE } from "../utils/constants";
+import { answerQuestion, generateQuestion, voteOnHuman, tallyVotes, promptForRound } from "../utils/bot";
 
 export default function Home() {
   const ref = useRef(false);
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
+  const [rounds, setRounds] = useState(0);
 
   function wait(ms: number = 500) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -23,12 +24,9 @@ export default function Home() {
       }
 
       const startingPlayer = Math.floor(Math.random() * characters.length);
-      const startingMessage: Message = {
-        sender: CharacterName.System,
-        content: `Welcome to the game. All of you are AI, except one. The human is trying to blend in with the AI. The AI are trying to figure out who the human is. The human wins if they are not discovered. The AI win if they correctly identify the human. To start, let's have ${characters[startingPlayer].name} propose a question to the group.`
-      };
-      const localHistory: Message[] = [startingMessage];
-      setChatHistory([startingMessage]);
+      const systemMessage = promptForRound(rounds, startingPlayer);
+      const localHistory: Message[] = [systemMessage];
+      setChatHistory(prev => [...prev, systemMessage]);
       wait();
 
       // generate a question
@@ -58,13 +56,24 @@ export default function Home() {
 
       const maxVoteGetter = tallyVotes(votes);
       // TODO: remove player via state 
+
+      if (rounds == ROUNDS_TO_SURVIVE) {
+        const finalMessage: Message = {
+          sender: CharacterName.System,
+          content: `The game is over. The human was _____.`
+        };
+        updateChat(finalMessage);
+        return;
+      }
+
+      setRounds(prev => prev + 1);
     }
 
     startGame();
     return () => {
       ref.current = true;
     };
-  }, []);
+  }, [rounds]);
   
   return (
     <div className="flex flex-col items-center min-h-screen py-2 max-w-2xl mx-auto justify-center">

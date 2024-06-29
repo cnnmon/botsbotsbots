@@ -1,3 +1,5 @@
+export const ROUNDS_TO_SURVIVE = 3
+
 export enum CharacterName {
   Tiffany = "Tiffany",
   Leyton = "Leyton",

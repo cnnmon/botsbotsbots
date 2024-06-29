@@ -127,5 +127,19 @@ function tallyVotes(votes: CharacterName[]): CharacterName | null {
   return voteGetters[0] as CharacterName;
 }
 
+function promptForRound(round: number, startingPlayerIndex: number): Message {
+  if (round === 0) {
+    return {
+      sender: CharacterName.System,
+      content: `Welcome to the game. All of you are AI, except one. The human is trying to blend in with the AI. The AI are trying to figure out who the human is. The human wins if they are not discovered. The AI win if they correctly identify the human. To start, let's have ${characters[startingPlayerIndex].name} propose a question to the group.`
+    };  
+  } else {
+    return {
+      sender: CharacterName.System,
+      content: `The human successfully evaded detection. The next round will commence. Let's have ${characters[startingPlayerIndex].name} propose a question to the group.`
+    };  
+  }
+}
 
-export { answerQuestion, generateQuestion, voteOnHuman, tallyVotes }
+
+export { answerQuestion, generateQuestion, voteOnHuman, tallyVotes, promptForRound }
