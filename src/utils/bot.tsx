@@ -76,15 +76,35 @@ async function voteOnHuman(character: Character, chatHistory: Message[]): Promis
       role: "system",
       content: `${commonContext(character, chatHistory)}
 
-      You are ${character.name}. Vote on who you think is the human. Respond with ONLY the name of the player and nothing else.`
+      You are ${character.name}. Vote on who you think is the human. Respond only in JSON in this format:
+      {
+        "vote": "CharacterName",
+        "reason": "I think this character is the human because..."
+      }`
     }],
     model: "gpt-4-turbo",
+    response_format: { type: "json_object" },
   });
 
   const response = completion.choices[0].message.content;
-  return {
-    sender: character.name,
-    content: response || "I abstain from voting."
+  if (!response) {
+    return {
+      sender: character.name,
+      content: "I abstain from voting."
+    }
+  }
+
+  try {
+    const { vote, reason } = JSON.parse(response);
+    return {
+      sender: character.name,
+      content: `I vote for ${vote}. ${reason}`
+    }
+  } catch (e) {
+    return {
+      sender: character.name,
+      content: "I abstain from voting."
+    }
   }
 }
 
