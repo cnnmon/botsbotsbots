@@ -6,6 +6,8 @@ import { answerQuestion, generateQuestion, voteOnHuman, tallyVotes, promptForRou
 enum Stage {
   Start = "Start",
   Question = "Question",
+  Answer = "Answer",
+  HumanAnswer = "HumanAnswer", // waiting on human to answer
   Vote = "Vote",
 }
 
@@ -14,7 +16,9 @@ export default function Home() {
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
   const [stage, setStage] = useState<Stage>(Stage.Start);
   const [message, setMessage] = useState<string>("");
-  const [humanPlayer, setHumanPlayer] = useState<CharacterName | undefined>(undefined);
+  const [humanPlayer, setHumanPlayer] = useState<number>(0);
+  const [startingPlayer, setStartingPlayer] = useState(0);
+  const [question, setQuestion] = useState<string>("");
   const [rounds, setRounds] = useState(0);
 
   function wait(ms: number = 100) {
@@ -36,10 +40,12 @@ export default function Home() {
       }
 
       if (stage === Stage.Start) {
-        const humanPlayer = characters[Math.floor(Math.random() * characters.length)].name;
+        const humanPlayer = Math.floor(Math.random() * characters.length);
         setHumanPlayer(humanPlayer);
 
-        const startingPlayer = Math.floor(Math.random() * characters.length);
+        const startingPlayer = humanPlayer;
+        setStartingPlayer(startingPlayer);
+
         const systemMessage = promptForRound(rounds, startingPlayer);
         setChatHistory(prev => [...prev, systemMessage]);
         wait();
@@ -50,24 +56,39 @@ export default function Home() {
         };
         localHistory = [startingMessage];
         setChatHistory([startingMessage]);
-        wait();
+        setStage(Stage.Question);
+      }
 
-        // generate a question
-        const question = await generateQuestion(characters[startingPlayer], localHistory);
-        updateChat(question);
-        wait();
+      if (stage === Stage.Question) {
+        // if the starting player is not the human, generate a question
+        if (startingPlayer !== humanPlayer) {
+          const question = await generateQuestion(characters[startingPlayer], localHistory);
+          setQuestion(question.content);
+          updateChat(question);
+          setStage(Stage.Answer);
+        }
+        
+        // wait for the human to ask a question before moving on
+        return;
+      }
 
+      if (stage === Stage.Answer) {
         // rotate through the characters until everyone has answered
         for (let i = 0; i < characters.length; i++) {
-          if (characters[i].name === humanPlayer) {
+          if (i === humanPlayer) {
             continue;
           }
-          const message = await answerQuestion(characters[i], localHistory, question.content);
+          const message = await answerQuestion(characters[i], localHistory, question);
           updateChat(message);
           wait();
         }
+        setStage(Stage.HumanAnswer);
+        return;
+      }
 
-        setStage(Stage.Question);
+      if (stage === Stage.HumanAnswer) {
+        // wait for human to answer
+        setStage(Stage.HumanAnswer);
         return;
       }
 
@@ -76,7 +97,7 @@ export default function Home() {
         // remove the player with the most votes
         const votes: CharacterName[] = []
         for (let i = 0; i < characters.length; i++) {
-          if (characters[i].name === humanPlayer) {
+          if (i === humanPlayer) {
             continue;
           }
           console.log(chatHistory)
@@ -99,7 +120,8 @@ export default function Home() {
           updateChat(finalMessage);
           return;
         }
-  
+
+        setStage(Stage.Start);
         setRounds(prev => prev + 1);
       }
     }
@@ -112,12 +134,23 @@ export default function Home() {
   }, [stage, rounds]);
 
   const handleHumanResponse = () => {
+    if (!message) {
+      alert("Please enter a response.");
+      return;
+    }
+
     const newMessage: Message = {
-      sender: humanPlayer as CharacterName,
+      sender: characters[humanPlayer].name,
       content: message
     };
     setChatHistory(prev => [...prev, newMessage]);
     setMessage("");
+
+    if (stage === Stage.Question) {
+      setQuestion(message);
+      setStage(Stage.Answer);
+      return;
+    }
 
     // unblock voting stage
     setStage(Stage.Vote);
@@ -129,6 +162,7 @@ export default function Home() {
   
   return (
     <div className="flex flex-col items-center min-h-screen py-2 max-w-2xl mx-auto justify-center">
+      <p>Round: {rounds}</p>
       <p>Human player: {humanPlayer}</p>
       <div className="h-[60vh] overflow-y-auto">
         {chatHistory.map((message, index) => (
@@ -145,10 +179,13 @@ export default function Home() {
       />
       <button
         className="mt-4 w-full p-2 bg-blue-500 text-white rounded disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
-        disabled={stage !== Stage.Question || message.length === 0}
+        disabled={!(
+          stage === Stage.Question && startingPlayer === humanPlayer
+          || stage === Stage.HumanAnswer
+        )}
         onClick={handleHumanResponse}
         type="button">
-        Respond to the question
+        Submit
       </button>
     </div>
   );
