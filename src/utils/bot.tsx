@@ -8,8 +8,6 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true,
 });
 
-// TODO: limit the responses of bots (max 50 words) -- will also add to chat UI for human
-
 function commonContext(character: Character, chatHistory: Message[]) {
   return `Your name is ${character.name}. You are a gpt-3.5-turbo bot. There is a human hiding amongst you. There is a common chat window where you, three other bots, and a human will answer a question. You win if you can successfully determine who is a human and not a bot.\n 
   
@@ -24,7 +22,7 @@ async function generateQuestion(character: Character, chatHistory: Message[]): P
       role: "system",
       content: `${commonContext(character, chatHistory)}
       
-      Generate a question that hasn't been asked before according to your character's personality and to weed out the human.`
+      Generate a question that hasn't been asked before according to your character's personality and to weed out the human. The question shouldn't necessarily be about artificial intelligence, some examples could be: "What's your favorite movie and why?" or "What do you think the meaning of life is?" or "What do you think about the current political climate?"`
     }],
     model: "gpt-4-turbo",
   });
@@ -53,7 +51,7 @@ async function answerQuestion(character: Character, chatHistory: Message[], ques
       role: "system",
       content: `${commonContext(character, chatHistory)}
       
-      Answer the question ${question} according to your character's personality.`
+      Answer the question ${question} according to your character's personality. Limit your response to 50 words or less.`
     }],
     model: "gpt-4-turbo",
   });
