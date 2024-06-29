@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { Character, Message, characters } from "./constants";
+import { Character, CharacterName, Message, characters } from "./constants";
 
 const OPENAI_API_KEY = "sk-proj-twiPtJcUIbrgwPvGUDCIT3BlbkFJyLQ2oD9ObFtc8cda9gpJ"
 
@@ -8,16 +8,12 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true,
 });
 
-// main prompt: you are a muderous bot. you hate humans. there is a human hiding amongst you. weed them out.
-// + all previous chat logs with indications of who said what
-// bot 1: hello \n bot 2: blah blah
-// limit the responses of bots (max 50 words) -- will also add to chat UI for human
-// give bots characters
+// TODO: limit the responses of bots (max 50 words) -- will also add to chat UI for human
 
 function commonContext(character: Character, chatHistory: Message[]) {
   return `Your name is ${character.name}. You are a gpt-3.5-turbo bot. There is a human hiding amongst you. There is a common chat window where you, three other bots, and a human will answer a question. You win if you can successfully determine who is a human and not a bot.\n 
   
-  The characters in the game (including yourself) are ${characters.toString()}.\n
+  The characters in the game (including yourself) are ${Object.values(CharacterName).join(', ')}.\n
       
   The chat history is ${chatHistory.toString()}.\n`
 }
