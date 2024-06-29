@@ -16,7 +16,7 @@ export default function Home() {
     <>
       {chatHistory.map((message, index) => (
         <div key={index}>
-          <strong>{message.sender.name}</strong>: {message.content}
+          <strong>{message.sender}</strong>: {message.content}
         </div>
       ))}
     </>

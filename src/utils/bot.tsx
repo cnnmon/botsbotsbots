@@ -30,19 +30,19 @@ async function generateQuestion(character: Character, chatHistory: Message[]): P
       
       Generate a question that hasn't been asked before according to your character's personality and to weed out the human.`
     }],
-    model: "gpt-3.5-turbo",
+    model: "gpt-4-turbo",
   });
 
   const response = completion.choices[0].message.content;
   if (!response) {
     return {
-      sender: character,
+      sender: character.name,
       content: "I don't know what to say."
     }
   }
 
   return {
-    sender: character,
+    sender: character.name,
     content: response
   }
 }
@@ -59,24 +59,24 @@ async function answerQuestion(character: Character, chatHistory: Message[], ques
       
       Answer the question ${question} according to your character's personality.`
     }],
-    model: "gpt-3.5-turbo",
+    model: "gpt-4-turbo",
   });
 
   const response = completion.choices[0].message.content;
   if (!response) {
     return {
-      sender: character,
+      sender: character.name,
       content: "I don't know what to say."
     }
   }
 
   return {
-    sender: character,
+    sender: character.name,
     content: response
   }
 }
 
-async function voteOnHuman(character: Character, chatHistory: Message[]): Promise<Character | undefined> {
+async function voteOnHuman(character: Character, chatHistory: Message[]): Promise<Message> {
   const completion = await openai.chat.completions.create({
     messages: [{
       role: "system",
@@ -84,13 +84,13 @@ async function voteOnHuman(character: Character, chatHistory: Message[]): Promis
 
       You are ${character.name}. Vote on who you think is the human. Respond with ONLY the name of the player and nothing else.`
     }],
-    model: "gpt-3.5-turbo",
+    model: "gpt-4-turbo",
   });
-  console.log(completion);
 
   const response = completion.choices[0].message.content;
-  if (response) {
-    return characters.find((c) => c.name === response);
+  return {
+    sender: character.name,
+    content: response || "I abstain from voting."
   }
 }
 

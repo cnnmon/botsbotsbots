@@ -1,4 +1,4 @@
-import { characters, Message } from "./constants";
+import { characters, Message, CharacterName } from "./constants";
 import { answerQuestion, generateQuestion, voteOnHuman } from "./bot";
 
 // one round
@@ -6,11 +6,12 @@ export async function startGame() {
   // randomly choose one player to propose a question
   const chatHistory: Message[] = [
     {
-      sender: {
-        name: "System",
-        personality: "You are the game master."
-      },
-      content: "Welcome to the game. All of you are AI, except one. The human is trying to blend in with the AI. The AI are trying to figure out who the human is. The human wins if they are not discovered. The AI win if they correctly identify the human. First, one of you will ask a question to start the game."
+      sender: CharacterName.System,
+      content: "Welcome to the game. All of you are AI, except one. The human is trying to blend in with the AI. The AI are trying to figure out who the human is. The human wins if they are not discovered. The AI win if they correctly identify the human."
+    },
+    {
+      sender: CharacterName.System,
+      content: "To start, let's have one of you propose a question to the group."
     }
   ];
   const startingPlayer = Math.floor(Math.random() * characters.length);
@@ -28,17 +29,7 @@ export async function startGame() {
   // remove the player with the most votes
   for (let i = 0; i < characters.length; i++) {
     const vote = await voteOnHuman(characters[i], chatHistory);
-    if (!vote) {
-      chatHistory.push({
-        sender: characters[i],
-        content: "I abstain from voting."
-      });
-    } else {
-      chatHistory.push({
-        sender: characters[i],
-        content: `I vote for ${vote.name}.`
-      });
-    }
+    chatHistory.push(vote);
   }
 
   return chatHistory;
