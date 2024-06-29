@@ -9,11 +9,13 @@ const openai = new OpenAI({
 });
 
 function commonContext(character: Character, chatHistory: Message[]) {
-  return `Your name is ${character.name}. You are a gpt-3.5-turbo bot. There is a human hiding amongst you. There is a common chat window where you, three other bots, and a human will answer a question. You win if you can successfully determine who is a human and not a bot.\n 
+  const chatHistoryString = chatHistory.map((message) => `${message.sender}: ${message.content}`).join('\n');
+
+  return `You are ${character.name} and you are a gpt-3.5-turbo bot who hates humans. There is a human hiding in a chatroom with you and three other bots. You must figure out who the human is, while writing responses to differentiate yourself as a bot to other bots.\n 
   
   The characters in the game (including yourself) are ${Object.values(CharacterName).join(', ')}.\n
       
-  The chat history is ${chatHistory.toString()}.\n`
+  The chat history is ${chatHistoryString}.\n`
 }
 
 async function generateQuestion(character: Character, chatHistory: Message[]): Promise<Message> {
@@ -22,7 +24,7 @@ async function generateQuestion(character: Character, chatHistory: Message[]): P
       role: "system",
       content: `${commonContext(character, chatHistory)}
       
-      Generate a question that hasn't been asked before according to your character's personality and to weed out the human. The question shouldn't necessarily be about artificial intelligence, some examples could be: "What's your favorite movie and why?" or "What do you think the meaning of life is?" or "What do you think about the current political climate?"`
+      Generate a question that hasn't been asked before to weed out the human. Limit your response to 50 words or less."`
     }],
     model: "gpt-4-turbo",
   });
@@ -45,13 +47,12 @@ async function generateQuestion(character: Character, chatHistory: Message[]): P
 async function answerQuestion(character: Character, chatHistory: Message[], question: string): Promise<Message> {
   // if chatHistory exists, then default to -- read the chat history and respond to whatever is asked
   // if no chatHistory, then ask the model to make its own question to ask the chat
-
   const completion = await openai.chat.completions.create({
     messages: [{
       role: "system",
       content: `${commonContext(character, chatHistory)}
       
-      Answer the question ${question} according to your character's personality. Limit your response to 50 words or less.`
+      Answer the question ${question}. Limit your response to 50 words or less.`
     }],
     model: "gpt-4-turbo",
   });
@@ -76,7 +77,14 @@ async function voteOnHuman(character: Character, chatHistory: Message[]): Promis
       role: "system",
       content: `${commonContext(character, chatHistory)}
 
-      You are ${character.name}. Vote on who you think is the human. Respond only in JSON in this format:
+      You are ${character.name}. Vote on who you think is the human.
+
+      Humans may have responses that are more informal, have typos, or use slang. They may also have responses that are more emotional or less logical. For example:
+
+      Human: "im a big fan of the office"
+      Bot: "I enjoy watching The Office."
+      
+      Respond only in JSON in this format:
       {
         "vote": "CharacterName",
         "reason": "I think this character is the human because..."

@@ -102,9 +102,7 @@ export default function Home() {
           }
           console.log(chatHistory)
           const vote = await voteOnHuman(characters[i], chatHistory);
-          if (vote.content !== "I abstain from voting.") {
-            votes.push(vote.sender);
-          }
+          votes.push(vote.sender);
           updateChat(vote);
           wait();
         }
@@ -121,6 +119,7 @@ export default function Home() {
           return;
         }
 
+        return;
         setStage(Stage.Start);
         setRounds(prev => prev + 1);
       }
