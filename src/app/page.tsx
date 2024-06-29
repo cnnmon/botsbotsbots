@@ -13,6 +13,7 @@ enum Stage {
 
 export default function Home() {
   const ref = useRef(false);
+  const endOfChatRef = useRef<HTMLDivElement>(null);
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
   const [stage, setStage] = useState<Stage>(Stage.Start);
   const [message, setMessage] = useState<string>("");
@@ -37,6 +38,7 @@ export default function Home() {
       function updateChat(message: Message) {
         localHistory.push(message);
         setChatHistory(prev => [...prev, message]);
+        endOfChatRef.current?.scrollIntoView({ behavior: "smooth" });
       }
 
       if (stage === Stage.Start) {
@@ -50,13 +52,20 @@ export default function Home() {
         setChatHistory(prev => [...prev, systemMessage]);
         wait();
 
-        const startingMessage: Message = {
-          sender: CharacterName.System,
-          content: `Welcome to the game. All of you are AI, except one. The human is trying to blend in with the AI. The AI are trying to figure out who the human is. The human wins if they are not discovered. The AI win if they correctly identify the human. To start, let's have ${characters[startingPlayer].name} propose a question to the group.`
-        };
-        localHistory = [startingMessage];
-        setChatHistory([startingMessage]);
+        const startingMessages: Message[] = [
+          {
+            sender: CharacterName.Decoration,
+            content: "======================\nStarting game...\n======================"
+          },
+          {
+            sender: CharacterName.System,
+            content: `Welcome to the game. All of you are AI, except one. The human is trying to blend in with the AI. The AI are trying to figure out who the human is. The human wins if they are not discovered. The AI win if they correctly identify the human. To start, let's have ${characters[startingPlayer].name} propose a question to the group.`
+          }
+        ];
+        
+        setChatHistory(startingMessages);
         setStage(Stage.Question);
+        return;
       }
 
       if (stage === Stage.Question) {
@@ -73,6 +82,11 @@ export default function Home() {
       }
 
       if (stage === Stage.Answer) {
+        updateChat({
+          sender: CharacterName.Decoration,
+          content: `======================\nAnswer the question: ${question}\n======================`
+        });
+
         // rotate through the characters until everyone has answered
         for (let i = 0; i < characters.length; i++) {
           if (i === humanPlayer) {
@@ -93,6 +107,11 @@ export default function Home() {
       }
 
       if (stage === Stage.Vote) {
+        updateChat({
+          sender: CharacterName.Decoration,
+          content: `======================\nAll players have answered. Time to vote.\n======================`
+        });
+
         // ask the players to vote on who they think is the human
         // remove the player with the most votes
         const votes: CharacterName[] = []
@@ -119,7 +138,6 @@ export default function Home() {
           return;
         }
 
-        return;
         setStage(Stage.Start);
         setRounds(prev => prev + 1);
       }
@@ -153,22 +171,27 @@ export default function Home() {
 
     // unblock voting stage
     setStage(Stage.Vote);
-    setChatHistory(prev => [...prev, {
-      sender: CharacterName.System,
-      content: "All players have answered the question. Please vote on who you think is the human."
-    }]);
   }
   
   return (
     <div className="flex flex-col items-center min-h-screen py-2 max-w-2xl mx-auto justify-center">
       <p>Round: {rounds}</p>
-      <p>Human player: {humanPlayer}</p>
+      <p>Human player: {characters[humanPlayer].name}</p>
       <div className="h-[60vh] overflow-y-auto">
         {chatHistory.map((message, index) => (
           <div key={index}>
-            <strong>{message.sender}</strong>: {message.content}
+            {message.sender !== CharacterName.Decoration ? (
+              <>
+                <strong>{message.sender}</strong>: {message.content}
+              </>
+            ) : (
+              <p className="whitespace-pre-wrap text-center">
+                {message.content}
+              </p>
+            )}
           </div>
         ))}
+        <div ref={endOfChatRef} />
       </div>
       <textarea
         className="w-full h-24 mt-8"

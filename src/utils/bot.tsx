@@ -9,7 +9,7 @@ const openai = new OpenAI({
 });
 
 function commonContext(character: Character, chatHistory: Message[]) {
-  const chatHistoryString = chatHistory.map((message) => `${message.sender}: ${message.content}`).join('\n');
+  const chatHistoryString = chatHistory.map((message) => message.sender !== CharacterName.Decoration ? `${message.sender}: ${message.content}` : '').join('\n');
 
   return `You are ${character.name} and you are a gpt-3.5-turbo bot who hates humans. There is a human hiding in a chatroom with you and three other bots. You must figure out who the human is, while writing responses to differentiate yourself as a bot to other bots.\n 
   

@@ -7,6 +7,7 @@ export enum CharacterName {
   Helen = "Helen",
   Kayla = "Kayla",
   System = "System",
+  Decoration = "Decoration",
 }
 
 type Character = {
