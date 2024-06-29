@@ -59,12 +59,15 @@ export default function Home() {
   }, []);
   
   return (
-    <>
-      {chatHistory.map((message, index) => (
-        <div key={index}>
-          <strong>{message.sender}</strong>: {message.content}
-        </div>
-      ))}
-    </>
+    <div className="flex flex-col items-center min-h-screen py-2 max-w-2xl mx-auto justify-center">
+      <div className="h-[70vh] overflow-y-auto">
+        {chatHistory.map((message, index) => (
+          <div key={index}>
+            <strong>{message.sender}</strong>: {message.content}
+          </div>
+        ))}
+      </div>
+      <textarea className="w-full h-24 mt-8" />
+    </div>
   );
 }
