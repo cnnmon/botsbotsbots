@@ -2,17 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  background: black;
-  color: white;
+@font-face {
+  font-family: ppFont;
+  src: url('../public/font.otf');
 }
 
-textarea {
-  @apply text-black;
+:root {
+  --header-color: #D9D9D9;
+  --primary-color: #321907;
+  --secondary-color: #E87E00;
+  background: var(--secondary-color);
+  color: var(--primary-color);
+}
+
+html, body {
+  overflow: hidden;
+  font-family: ppFont !important;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+.frame {
+  background: var(--header-color);
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  user-select: none;
+}
+
+.window {
+  position: absolute;
+  background: var(--header-color);
+  border-width: 1.5px;
+  border-color: var(--text-color);
+}
+
+.draggable {
+  cursor: pointer;
+}
+
+.no-drag {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+textarea {
+  background: none;
+  padding: 8px;
+}
+
+textarea:focus {
+  outline: none;
+}
+
+.button {
+  cursor: pointer;
 }
