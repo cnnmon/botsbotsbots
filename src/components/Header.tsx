@@ -19,7 +19,7 @@ export default function Header() {
   }, []);
 
   return (
-    <div className='frame border-b-[1.5px] border-primary-color flex items-center'>
+    <div className='frame border-b-[1.5px] border-primary-color flex items-center z-800'>
       <Image src={fishSvg} alt='fish' width={15} height={10} className='m-1' />
       <p suppressHydrationWarning>{date.toDateString()} {date.toLocaleTimeString()}</p>
     </div>

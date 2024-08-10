@@ -6,12 +6,18 @@ export default function Profile({
 }: {
   character: Character
 }) {
-  const { name, bio, profile } = character;
+  const { name, bio, profileLarge } = character;
   return (
-    <>
-      <Image alt={`${name}'s headshot`} className='no-drag' src={profile} />
-      <p>{name}</p>
-      <p>{bio}</p>
-    </>
+    <div className='p-4 flex items-center flex-col'>
+      <Image
+        alt={`${name}'s headshot`}
+        className='no-drag w-[100%]'
+        src={profileLarge}
+      />
+      <div className='text-left my-4 w-full border-t-[1.5px] border-primary-color '>
+        <h1>{name}</h1>
+        <h2 className='mt-[-10px]'>{bio}</h2>
+      </div>
+    </div>
   )
 }

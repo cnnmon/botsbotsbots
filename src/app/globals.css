@@ -11,6 +11,8 @@
   --header-color: #D9D9D9;
   --primary-color: #321907;
   --secondary-color: #E87E00;
+  --gray-color: gray;
+  --red-color: red;
   background: var(--secondary-color);
   color: var(--primary-color);
 }
@@ -42,7 +44,7 @@ html, body {
 }
 
 .draggable {
-  cursor: pointer;
+  cursor: grab;
 }
 
 .no-drag {
@@ -50,9 +52,19 @@ html, body {
   user-select: none;
 }
 
+button {
+  text-decoration: underline;
+  color: blue;
+}
+
+button:disabled {
+  text-decoration: none;
+  cursor: not-allowed;
+  color: var(--gray-color);
+}
+
 textarea {
   background: none;
-  padding: 8px;
 }
 
 textarea:focus {
@@ -61,4 +73,26 @@ textarea:focus {
 
 .button {
   cursor: pointer;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.2rem;
+}
+
+::-webkit-scrollbar {
+  width: 15px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--primary-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--header-color);
+  border: 1.5px solid var(--primary-color);
+  cursor: grab;
 }
