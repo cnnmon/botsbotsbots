@@ -44,10 +44,6 @@ body {
   border-color: var(--text-color);
 }
 
-.draggable {
-  cursor: grab;
-}
-
 .no-drag {
   -webkit-user-drag: none;
   user-select: none;

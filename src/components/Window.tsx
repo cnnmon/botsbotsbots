@@ -4,14 +4,6 @@ import Draggable, { ControlPosition } from 'react-draggable';
 import Image from 'next/image';
 import exitSvg from '@/public/exit.svg';
 
-const getPos = (random: boolean): ControlPosition =>
-  random
-    ? {
-        x: Math.random() * (window.innerWidth / 3) + 250,
-        y: Math.random() * (window.innerHeight / 3) - 50,
-      }
-    : { x: 0, y: -50 };
-
 function Lines() {
   return (
     <div className="flex-col w-full draggable mb-[-4px] mt-[1px]">
@@ -29,14 +21,13 @@ function TopBar({ exitProfile }: { exitProfile?: () => void }) {
   if (exitProfile) {
     return (
       <div className="frame border-b-[1.5px] border-primary-color flex">
-        <div className="p-1 w-[800%] draggable">
+        <div className="p-1 w-[800%] cursor-grab">
           <Lines />
         </div>
         <div className="frame border-l-[1.5px] border-primary-color">
           <Image
             src={exitSvg}
             alt=""
-            width={20}
             className="no-drag button"
             onClick={exitProfile}
           />
@@ -46,7 +37,7 @@ function TopBar({ exitProfile }: { exitProfile?: () => void }) {
   }
 
   return (
-    <div className="frame border-b-[1.5px] border-primary-color flex p-1">
+    <div className="frame border-b-[1.5px] border-primary-color flex p-1 cursor-grab">
       <Lines />
     </div>
   );
@@ -54,41 +45,40 @@ function TopBar({ exitProfile }: { exitProfile?: () => void }) {
 
 export default function Window({
   name,
-  width,
-  height,
-  hasRandomPos = false,
-  exitProfile,
   content,
-  windowOrdering,
-  moveToFront,
+  style,
+  defaultPosition,
+  exitProfile,
 }: {
-  name: string; // identifier for window ordering
-  width: string;
-  height: string;
-  hasRandomPos?: boolean;
-  exitProfile?: () => void;
+  name: string;
   content: React.ReactNode;
-  windowOrdering: string[];
-  moveToFront: (name: string) => void;
+  style: React.CSSProperties;
+  defaultPosition: ControlPosition;
+  exitProfile?: () => void;
 }) {
+  const windowStorageKey = `window-${name}`;
   const nodeRef = useRef(null);
+
+  const position =
+    JSON.parse(localStorage.getItem(windowStorageKey) || '{}') ||
+    defaultPosition;
+
   return (
     <Draggable
       handle=".draggable"
-      defaultPosition={getPos(hasRandomPos)}
-      onStart={() => moveToFront(name)}
+      defaultPosition={position}
+      onStop={(_, data) => {
+        localStorage.setItem(
+          windowStorageKey,
+          JSON.stringify({
+            x: data.x,
+            y: data.y,
+          })
+        );
+      }}
       nodeRef={nodeRef}
     >
-      <div
-        className="window top-[20%] left-[20%]"
-        ref={nodeRef}
-        style={{
-          width: `${width}`,
-          height: `${height}`,
-          minHeight: '400px',
-          zIndex: windowOrdering.indexOf(name),
-        }}
-      >
+      <div className="window top-[20%] left-[20%]" ref={nodeRef} style={style}>
         <TopBar exitProfile={exitProfile} />
         {content}
       </div>
