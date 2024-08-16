@@ -43,6 +43,27 @@ function TopBar({ exitProfile }: { exitProfile?: () => void }) {
   );
 }
 
+function getWindowPosition(
+  windowStorageKey: string,
+  defaultPosition: ControlPosition
+): ControlPosition {
+  const storedPosition = localStorage.getItem(windowStorageKey);
+  if (storedPosition) {
+    const { x, y } = JSON.parse(storedPosition);
+    return { x, y };
+  }
+
+  return defaultPosition;
+}
+
+function setWindowPosition(
+  windowStorageKey: string,
+  position: ControlPosition
+) {
+  const { x, y } = position;
+  localStorage.setItem(windowStorageKey, JSON.stringify({ x, y }));
+}
+
 export default function Window({
   name,
   content,
@@ -58,23 +79,18 @@ export default function Window({
 }) {
   const windowStorageKey = `window-${name}`;
   const nodeRef = useRef(null);
-
-  const position =
-    JSON.parse(localStorage.getItem(windowStorageKey) || '{}') ||
-    defaultPosition;
+  const position = getWindowPosition(windowStorageKey, defaultPosition);
 
   return (
     <Draggable
       handle=".draggable"
       defaultPosition={position}
       onStop={(_, data) => {
-        localStorage.setItem(
-          windowStorageKey,
-          JSON.stringify({
-            x: data.x,
-            y: data.y,
-          })
-        );
+        console.log(data);
+        const { x, y } = data;
+        if (x && y) {
+          setWindowPosition(windowStorageKey, data);
+        }
       }}
       nodeRef={nodeRef}
     >

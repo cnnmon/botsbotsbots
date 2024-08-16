@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { Message, CHARACTERS, PLAYER_CHARACTER } from '@/utils/constants';
+import { CHARACTERS, YOU_CHARACTER } from '@/utils/characters';
 import { GameStage } from '@/utils/game';
 import ChatMessage from '@/components/Chat/ChatMessage';
 import Textbox from '@/components/Chat/Textbox';
+import { Message, scrollToBottom, SERVER_NAME } from '@/utils/constants';
 
 export default function Chat({
   stage,
@@ -10,33 +11,34 @@ export default function Chat({
   messages,
   setMessages,
   openWindow,
-  handleAck,
+  handleStartQuestion,
 }: {
   stage: GameStage;
   startTimestamp: string;
   messages: Message[];
   setMessages: (newMessages: Message[]) => void;
   openWindow: (name: string) => void;
-  handleAck: () => void;
+  handleStartQuestion: () => void;
 }) {
   const [chatboxText, setChatboxText] = useState('');
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const scrollElement = chatScrollRef.current;
-    if (scrollElement) {
-      scrollElement.scrollTop = scrollElement.scrollHeight;
-    }
-  }, [messages]);
+    const savedScrollTop = parseInt(localStorage.getItem('scrollTop') || '0');
+    chatScrollRef.current?.scrollTo(0, savedScrollTop);
+    focusTextbox();
+  }, []);
 
   const sendMessage = () => {
     const newMessage = new Message({
-      sender: CHARACTERS[PLAYER_CHARACTER],
+      sender: CHARACTERS[YOU_CHARACTER],
       content: chatboxText,
     });
 
     setMessages([...messages, newMessage]);
     setChatboxText('');
+
+    scrollToBottom();
 
     /* focus textarea again after sending message */
     setTimeout(() => {
@@ -50,17 +52,21 @@ export default function Chat({
   };
 
   return (
-    <div className="h-full flex-col" onClick={focusTextbox}>
+    <div className="h-full flex-col">
       <div
         ref={chatScrollRef}
-        className="overflow-y-auto p-2 no-drag py-4"
+        className="overflow-y-auto p-2 py-4"
         style={{
           height: 'calc(70vh - 130px)',
           minHeight: '275px',
         }}
+        onScroll={(e: React.UIEvent<HTMLDivElement>) => {
+          const scrollTop = (e.target as HTMLDivElement).scrollTop;
+          localStorage.setItem('scrollTop', scrollTop.toString());
+        }}
       >
         <p className="whitespace-pre-wrap italic text-gray-color text-center px-4">
-          ──• Server 485, Igloo •──
+          ──• {SERVER_NAME} •──
           <br />
           {startTimestamp}
         </p>
@@ -80,7 +86,10 @@ export default function Chat({
         <div className="flex justify-center  items-center h-16">
           <button
             className="button border-[1.5px] border-primary-color p-2 w-1/2 text-primary-color hover:bg-primary-color hover:text-white"
-            onClick={handleAck}
+            onClick={() => {
+              handleStartQuestion();
+              scrollToBottom();
+            }}
           >
             Ack
           </button>
@@ -90,6 +99,7 @@ export default function Chat({
           chatboxText={chatboxText}
           setChatboxText={setChatboxText}
           sendMessage={sendMessage}
+          focusTextbox={focusTextbox}
         />
       )}
     </div>

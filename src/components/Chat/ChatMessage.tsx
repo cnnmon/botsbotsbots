@@ -1,5 +1,6 @@
+import { YOU_CHARACTER, SYSTEM_CHARACTER } from '@/utils/characters';
+import { Message } from '@/utils/constants';
 import Image from 'next/image';
-import { Message, PLAYER_CHARACTER, SYSTEM_CHARACTER } from '@/utils/constants';
 
 export default function ChatMessage({
   message,
@@ -11,7 +12,6 @@ export default function ChatMessage({
   openWindow: (name: string) => void;
 }) {
   const { sender, content, timestamp } = message;
-
   if (!sender) {
     return (
       <div className={`flex justify-center ${!coalesce && 'mt-4'}`}>
@@ -23,9 +23,8 @@ export default function ChatMessage({
   }
 
   const { name, images } = sender;
-  const sentByYou = name === PLAYER_CHARACTER;
+  const sentByYou = name === YOU_CHARACTER;
   const sentBySystem = name === SYSTEM_CHARACTER;
-
   return (
     <div className={`flex items-start ${coalesce ? 'mt-1' : 'mt-4'}`}>
       <div className="mr-2 w-20">
@@ -39,11 +38,12 @@ export default function ChatMessage({
           />
         )}
       </div>
-
       <div className="w-full">
         {!coalesce && (
           <div className="flex justify-between">
-            <p>{name}</p>
+            <p>
+              {name} {sentByYou && '(You)'}
+            </p>
             <p>{timestamp}</p>
           </div>
         )}

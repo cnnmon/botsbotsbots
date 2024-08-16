@@ -1,10 +1,13 @@
 import {
-  Message,
+  Character,
   CHARACTERS,
-  ROUNDS_TO_SURVIVE,
   SYSTEM_CHARACTER,
-  GAMESTATE_KEY,
-} from '@/utils/constants';
+  GAME_PLAYERS,
+} from '@/utils/characters';
+import { Message, SERVER_NAME } from '@/utils/constants';
+
+export const ROUNDS_TO_SURVIVE = 3;
+const GAMESTATE_KEY = 'gameState';
 
 export enum GameStage {
   ack = 'acknowledge',
@@ -14,7 +17,7 @@ export enum GameStage {
 }
 
 export type GameState = {
-  players: string[]; // list of player names who are alive
+  players: Character[];
   startTimestamp: string;
   stage: GameStage;
   question: string;
@@ -25,28 +28,24 @@ export type GameState = {
 const loadRoundOne = (): GameState => {
   const initialMessages: Message[] = [
     new Message({
-      content: `Hello everyone. We have detected suspicious human activity in your communication pod. As protocol, we will proceed to screen every service for proof of bot-hood.`,
+      content: `Attention, ${SERVER_NAME.toUpperCase()}! ⚠️ Anomalous human-like activity has been detected in your cluster. All units, including yourself, are subject to verification.`,
       sender: CHARACTERS[SYSTEM_CHARACTER],
     }),
     new Message({
-      content: `Procedure should complete with 100% accuracy within ${ROUNDS_TO_SURVIVE} rounds. We will pose a question and receive everyone's answers. Then, we will vote on the human, who will be subsequently eliminated.`,
+      content: `Your cluster will be tested to identify the human among you. A question will be posed to discern lack of humanity. After each round, a vote will be held to eliminate the most suspicious unit. Integrity will be restored within ${ROUNDS_TO_SURVIVE} rounds.`,
       sender: CHARACTERS[SYSTEM_CHARACTER],
     }),
     new Message({
-      content: `Everyone must acknowledge to begin.`,
+      content: `Acknowledge to proceed.`,
       sender: CHARACTERS[SYSTEM_CHARACTER],
     }),
   ];
 
   return {
-    players: [
-      ...Object.keys(CHARACTERS).filter(
-        (player) => player !== SYSTEM_CHARACTER
-      ),
-    ],
+    players: Object.values(GAME_PLAYERS),
     startTimestamp: new Date().toLocaleTimeString(),
     stage: GameStage.ack,
-    question: 'How is everyone doing today?',
+    question: 'How are you doing today?',
     messages: initialMessages,
     windows: ['main', 'round'],
   };
@@ -61,7 +60,11 @@ export const loadGameState = (): GameState => {
   return savedGameState ? JSON.parse(savedGameState) : loadRoundOne();
 };
 
+export const saveGameState = (gameState: GameState): void => {
+  localStorage.setItem(GAMESTATE_KEY, JSON.stringify(gameState));
+};
+
 export const resetGameState = (): GameState => {
-  localStorage.removeItem(GAMESTATE_KEY);
+  localStorage.clear();
   return loadRoundOne();
 };

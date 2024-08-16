@@ -1,20 +1,53 @@
-import { MAX_CHAT_LENGTH } from '@/utils/constants';
+import { useEffect } from 'react';
+
+const MAX_CHAT_LENGTH = 200;
+
+function loadChatboxText() {
+  return localStorage.getItem('chatboxText') || '';
+}
+
+function storeChatboxText(text: string) {
+  localStorage.setItem('chatboxText', text);
+}
+
+function resetChatboxText() {
+  localStorage.removeItem('chatboxText');
+}
 
 export default function Textbox({
   chatboxText,
   setChatboxText,
   sendMessage,
+  focusTextbox,
 }: {
   chatboxText: string;
   setChatboxText: (text: string) => void;
   sendMessage: () => void;
+  focusTextbox: () => void;
 }) {
+  useEffect(() => {
+    const savedChatboxText = loadChatboxText();
+    setChatboxText(savedChatboxText);
+  }, []);
+
+  const handleChatboxTextChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    setChatboxText(e.target.value);
+    storeChatboxText(e.target.value);
+  };
+
+  const handleChatboxSubmit = () => {
+    resetChatboxText();
+    sendMessage();
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
 
       if (chatboxText && chatboxText.length <= MAX_CHAT_LENGTH) {
-        sendMessage();
+        handleChatboxSubmit();
       }
 
       setTimeout(() => {
@@ -23,17 +56,12 @@ export default function Textbox({
     }
   };
 
-  const focusTextbox = () => {
-    const textarea = document.querySelector('textarea');
-    textarea?.focus();
-  };
-
   return (
     <div className="p-2 border-t-[1.5px] border-primary-color">
       <textarea
         className="w-full h-[50px] resize-none"
         value={chatboxText}
-        onChange={(e) => setChatboxText(e.target.value)}
+        onChange={handleChatboxTextChange}
         placeholder="Type a message..."
         onKeyDown={handleKeyDown}
       />

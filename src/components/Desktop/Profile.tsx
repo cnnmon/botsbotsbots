@@ -1,8 +1,13 @@
-import { Character, SYSTEM_CHARACTER } from '@/utils/constants';
+import {
+  Character,
+  CharacterStatus,
+  SYSTEM_CHARACTER,
+} from '@/utils/characters';
 import Image from 'next/image';
 
-function Status({ status, isSystem }: { status: boolean; isSystem: boolean }) {
-  if (isSystem) {
+function Status({ character }: { character: Character }) {
+  const { status, name } = character;
+  if (name === SYSTEM_CHARACTER) {
     return (
       <div className="flex items-center">
         <div className="h-3 w-3 rounded-full bg-gray-500" />
@@ -11,27 +16,21 @@ function Status({ status, isSystem }: { status: boolean; isSystem: boolean }) {
     );
   }
 
+  const isAlive = status === CharacterStatus.Alive;
   return (
     <div className="flex items-center">
       <div
         className={`h-3 w-3 rounded-full ${
-          status ? 'bg-green-500' : 'bg-red-500'
+          isAlive ? 'bg-green-500' : 'bg-gray-500'
         }`}
       />
-      <p className="ml-1">{status ? 'Alive' : 'Eliminated'}</p>
+      <p className="ml-1">{isAlive ? 'Alive' : 'Eliminated'}</p>
     </div>
   );
 }
 
-export default function Profile({
-  status,
-  character,
-}: {
-  status: boolean;
-  character: Character;
-}) {
+export default function Profile({ character }: { character: Character }) {
   const { name, bio, images } = character;
-
   return (
     <div
       className="p-4 flex items-center flex-col overflow-y-auto"
@@ -50,7 +49,7 @@ export default function Profile({
         <p className="text-gray-color">
           Joined: {character.est.toLocaleDateString()}
         </p>
-        <Status status={status} isSystem={name === SYSTEM_CHARACTER} />
+        <Status character={character} />
       </div>
     </div>
   );
