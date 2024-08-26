@@ -30,7 +30,7 @@ function Status({ character }: { character: Character }) {
 }
 
 export default function Profile({ character }: { character: Character }) {
-  const { name, bio, images } = character;
+  const { name, bio, images, est } = character;
   return (
     <div
       className="p-4 flex items-center flex-col overflow-y-auto"
@@ -46,9 +46,7 @@ export default function Profile({ character }: { character: Character }) {
       <div className="text-left my-4 w-full border-t-[1.5px] border-primary-color">
         <h1 className="line-clamp-1">{name}</h1>
         <h2 className="mt-[-10px]">{bio}</h2>
-        <p className="text-gray-color">
-          Joined: {character.est.toLocaleDateString()}
-        </p>
+        <p className="text-gray-color">Joined: {est.toString()}</p>
         <Status character={character} />
       </div>
     </div>

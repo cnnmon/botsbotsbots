@@ -2,21 +2,21 @@ import { useState, useRef, useEffect } from 'react';
 import { CHARACTERS, YOU_CHARACTER } from '@/utils/characters';
 import { GameStage } from '@/utils/game';
 import ChatMessage from '@/components/Chat/ChatMessage';
-import Textbox from '@/components/Chat/Textbox';
 import { Message, scrollToBottom, SERVER_NAME } from '@/utils/constants';
+import ActionFooter from '@/components/Chat/ActionFooter';
 
 export default function Chat({
   stage,
   startTimestamp,
   messages,
-  setMessages,
+  addMessage,
   openWindow,
   handleStartQuestion,
 }: {
   stage: GameStage;
   startTimestamp: string;
   messages: Message[];
-  setMessages: (newMessages: Message[]) => void;
+  addMessage: (message: Message) => void;
   openWindow: (name: string) => void;
   handleStartQuestion: () => void;
 }) {
@@ -35,7 +35,7 @@ export default function Chat({
       content: chatboxText,
     });
 
-    setMessages([...messages, newMessage]);
+    addMessage(newMessage);
     setChatboxText('');
 
     scrollToBottom();
@@ -44,6 +44,9 @@ export default function Chat({
     setTimeout(() => {
       focusTextbox();
     }, 0);
+
+    /* reset chatbox text */
+    localStorage.removeItem('chatboxText');
   };
 
   const focusTextbox = () => {
@@ -55,9 +58,11 @@ export default function Chat({
     <div className="h-full flex-col">
       <div
         ref={chatScrollRef}
-        className="overflow-y-auto p-2 py-4"
+        className="overflow-y-auto p-2 py-4 border-b-[1.5px] border-primary-color"
         style={{
-          height: 'calc(70vh - 130px)',
+          height: `calc(70vh - ${
+            stage === GameStage.answer ? '130px' : '100px'
+          })`,
           minHeight: '275px',
         }}
         onScroll={(e: React.UIEvent<HTMLDivElement>) => {
@@ -82,26 +87,17 @@ export default function Chat({
           />
         ))}
       </div>
-      {stage === GameStage.ack ? (
-        <div className="flex justify-center  items-center h-16">
-          <button
-            className="button border-[1.5px] border-primary-color p-2 w-1/2 text-primary-color hover:bg-primary-color hover:text-white"
-            onClick={() => {
-              handleStartQuestion();
-              scrollToBottom();
-            }}
-          >
-            Ack
-          </button>
-        </div>
-      ) : (
-        <Textbox
-          chatboxText={chatboxText}
-          setChatboxText={setChatboxText}
-          sendMessage={sendMessage}
-          focusTextbox={focusTextbox}
-        />
-      )}
+      <ActionFooter
+        stage={stage}
+        handleStartQuestion={() => {
+          handleStartQuestion();
+          scrollToBottom();
+        }}
+        chatboxText={chatboxText}
+        setChatboxText={setChatboxText}
+        sendMessage={sendMessage}
+        focusTextbox={focusTextbox}
+      />
     </div>
   );
 }

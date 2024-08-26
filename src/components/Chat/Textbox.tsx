@@ -10,10 +10,6 @@ function storeChatboxText(text: string) {
   localStorage.setItem('chatboxText', text);
 }
 
-function resetChatboxText() {
-  localStorage.removeItem('chatboxText');
-}
-
 export default function Textbox({
   chatboxText,
   setChatboxText,
@@ -37,17 +33,12 @@ export default function Textbox({
     storeChatboxText(e.target.value);
   };
 
-  const handleChatboxSubmit = () => {
-    resetChatboxText();
-    sendMessage();
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
 
       if (chatboxText && chatboxText.length <= MAX_CHAT_LENGTH) {
-        handleChatboxSubmit();
+        sendMessage();
       }
 
       setTimeout(() => {
@@ -57,7 +48,7 @@ export default function Textbox({
   };
 
   return (
-    <div className="p-2 border-t-[1.5px] border-primary-color">
+    <div className="p-2 border-primary-color">
       <textarea
         className="w-full h-[50px] resize-none"
         value={chatboxText}

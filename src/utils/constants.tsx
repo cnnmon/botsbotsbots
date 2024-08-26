@@ -1,10 +1,14 @@
 import { Character } from '@/utils/characters';
 
-export const SERVER_NAME = 'A1-5X-3 Igloo';
+export const SERVER_NAME = 'Igloo (Arizona)';
 
 export function scrollToBottom() {
   /* scroll chat to the bottom */
   localStorage.setItem('scrollTop', '999999');
+}
+
+export function waitASecond(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 1000));
 }
 
 export class Message {

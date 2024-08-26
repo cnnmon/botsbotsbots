@@ -4,7 +4,6 @@ import Profile from '@/components/Desktop/Profile';
 import Window from '@/components/Desktop/Window';
 import { ControlPosition } from 'react-draggable';
 import useGameManager from '@/components/GameManager';
-import { CHARACTERS } from '@/utils/characters';
 import PlayerList from '@/components/Desktop/PlayerList';
 
 export default function Desktop() {
@@ -12,7 +11,7 @@ export default function Desktop() {
     gameState,
     openWindow,
     exitWindow,
-    setMessages,
+    addMessage,
     handleStartQuestion,
     resetGame,
   } = useGameManager();
@@ -32,10 +31,6 @@ export default function Desktop() {
     defaultPosition: ControlPosition;
     isExitable?: boolean;
   }) {
-    if (!gameState.windows.includes(name)) {
-      return null;
-    }
-
     return (
       <Window
         name={name}
@@ -43,6 +38,7 @@ export default function Desktop() {
         style={{
           width: `${width}`,
           height: `${height}`,
+          display: gameState.windows.includes(name) ? 'block' : 'none',
         }}
         defaultPosition={defaultPosition}
         content={content}
@@ -58,11 +54,12 @@ export default function Desktop() {
           width="550px"
           height="70vh"
           defaultPosition={{ x: -60, y: -40 }}
+          isExitable
           content={
             <Chat
               startTimestamp={gameState.startTimestamp}
               messages={gameState.messages}
-              setMessages={setMessages}
+              addMessage={addMessage}
               openWindow={openWindow}
               stage={gameState.stage}
               handleStartQuestion={handleStartQuestion}
@@ -80,7 +77,7 @@ export default function Desktop() {
           }
         />
 
-        {Object.values(CHARACTERS).map((player, index) => {
+        {Object.values(gameState.players).map((player, index) => {
           return (
             <WindowContainer
               key={`window-${player.name}`}
@@ -102,11 +99,10 @@ export default function Desktop() {
           isExitable
           content={
             <div className="bg-primary-color h-full text-white p-4 flex flex-col justify-center items-center">
-              <h1>Round 1</h1>
-              <h2>
-                Remaining: {gameState.players.length} /{' '}
-                {gameState.players.length}
-              </h2>
+              Made with Blender, Next.js, and matcha lattes.
+              <a href="https://github.com/cnnmon/amongus" className="underline">
+                github.com/cnnmon/amongus
+              </a>
               <button
                 className="button mt-2 text-white hover:bg-white hover:text-primary-color w-1/2"
                 onClick={resetGame}
@@ -122,13 +118,32 @@ export default function Desktop() {
 
   return (
     <>
-      <AllWindows />
+      <div className="fixed top-16 left-8">
+        <h1 className="text-5xl">botsbotsbots</h1>
+        <h2 className="text-2xl">
+          you are the only human in a sea of bots.
+          <br />
+          every round, the most human-like player is eliminated.
+          <br />
+          last {gameState.players.length} rounds to win.
+        </h2>
+      </div>
+
+      <button
+        className="button p-2 bg-header-color fixed bottom-[50vh] right-[50vw] border-[1.5px] border-primary-color text-primary-color hover:bg-primary-color hover:text-white"
+        onClick={() => openWindow('main')}
+      >
+        play
+      </button>
+
       <button
         className="button p-2 bg-header-color fixed bottom-8 right-4 border-[1.5px] border-primary-color text-primary-color hover:bg-primary-color hover:text-white"
         onClick={() => openWindow('settings')}
       >
         settings
       </button>
+
+      <AllWindows />
     </>
   );
 }
