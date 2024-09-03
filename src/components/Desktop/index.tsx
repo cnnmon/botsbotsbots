@@ -91,10 +91,9 @@ export default function Desktop() {
         return (
           <>
             <button
-              className="button p-2 bg-header-color fixed border-[1.5px] border-primary-color text-primary-color hover:bg-primary-color hover:text-white"
+              className="button p-2 bg-header-color fixed border-[1.5px] border-primary-color text-primary-color hover:bg-primary-color hover:text-white left-8"
               style={{
-                top: `${30 + index * 5}vh`,
-                left: '2vw',
+                top: `${30 + index * 8}vh`,
                 zIndex: 0,
               }}
               onClick={() => {
