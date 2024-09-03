@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { CHARACTERS, YOU_CHARACTER } from '@/utils/characters';
-import { GameStage } from '@/utils/game';
 import ChatMessage from '@/components/Chat/ChatMessage';
-import { Message, scrollToBottom, SERVER_NAME } from '@/utils/constants';
 import ActionFooter from '@/components/Chat/ActionFooter';
+import { LevelStage } from '@/utils/levels';
+import { Message } from '@/utils/message';
+import { YOU_CHARACTER } from '@/constants/characters';
+import { SERVER_NAME } from '@/constants/misc';
 
 export default function Chat({
   stage,
@@ -11,14 +12,16 @@ export default function Chat({
   messages,
   addMessage,
   openWindow,
-  handleStartQuestion,
+  handleStartLevel,
+  handleRestartGame,
 }: {
-  stage: GameStage;
+  stage: LevelStage;
   startTimestamp: string;
   messages: Message[];
   addMessage: (message: Message) => void;
   openWindow: (name: string) => void;
-  handleStartQuestion: () => void;
+  handleStartLevel: () => void;
+  handleRestartGame: () => void;
 }) {
   const [chatboxText, setChatboxText] = useState('');
   const chatScrollRef = useRef<HTMLDivElement>(null);
@@ -31,14 +34,12 @@ export default function Chat({
 
   const sendMessage = () => {
     const newMessage = new Message({
-      sender: CHARACTERS[YOU_CHARACTER],
+      sender: YOU_CHARACTER,
       content: chatboxText,
     });
 
     addMessage(newMessage);
     setChatboxText('');
-
-    scrollToBottom();
 
     /* focus textarea again after sending message */
     setTimeout(() => {
@@ -58,10 +59,10 @@ export default function Chat({
     <div className="h-full flex-col">
       <div
         ref={chatScrollRef}
-        className="overflow-y-auto p-2 py-4 border-b-[1.5px] border-primary-color"
+        className={`overflow-y-auto p-2 py-4 border-primary-color border-b-[1.5px]`}
         style={{
           height: `calc(70vh - ${
-            stage === GameStage.answer ? '130px' : '100px'
+            stage === LevelStage.answer ? '130px' : '100px'
           })`,
           minHeight: '275px',
         }}
@@ -79,8 +80,7 @@ export default function Chat({
           <ChatMessage
             message={message}
             coalesce={
-              index > 0 &&
-              messages[index - 1].sender?.name === message.sender?.name
+              index > 0 && messages[index - 1].sender === message.sender
             }
             openWindow={openWindow}
             key={index}
@@ -89,10 +89,8 @@ export default function Chat({
       </div>
       <ActionFooter
         stage={stage}
-        handleStartQuestion={() => {
-          handleStartQuestion();
-          scrollToBottom();
-        }}
+        handleStartLevel={handleStartLevel}
+        handleRestartGame={handleRestartGame}
         chatboxText={chatboxText}
         setChatboxText={setChatboxText}
         sendMessage={sendMessage}

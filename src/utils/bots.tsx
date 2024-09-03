@@ -1,6 +1,10 @@
+/**
+ * BOTS offers utils for interacting with GPT-4o.
+ */
+
 import OpenAI from 'openai';
-import { Character, CHARACTERS } from '@/utils/characters';
-import { Message } from '@/utils/constants';
+import { Character, CHARACTERS } from '@/constants/characters';
+import { Message } from '@/utils/message';
 
 const MODEL = 'gpt-4o-mini-2024-07-18';
 
@@ -10,7 +14,7 @@ const openai = new OpenAI({
 });
 
 function getCharacterContext(character: Character): string {
-  return `You are ${character.name}. You are a bot at BigCo where your role is ${character.bio}. You are in a chatroom with other bots and one human. You are trying to determine who the human is, if there is any.`;
+  return `You are ${character.name}. You are a bot at BigCo where your role is ${character.bio}. You are in a chatroom with other bots and only one human. If you successfully determine the human, you will be rewarded. If you fail, you will be terminated.`;
 }
 
 const getCompletion = async (prompt: string) => {
@@ -26,75 +30,45 @@ const getCompletion = async (prompt: string) => {
   return completion.choices[0].message.content;
 };
 
-function getChatHistory(chatHistory: Message[]): string {
-  if (!chatHistory.length) {
-    return '';
+function getChatHistory(question: string, answers: Message[]): string {
+  let chatHistory = `The question was: ${question}`;
+
+  if (!answers.length) {
+    return chatHistory;
   }
 
-  const chatHistoryAsString = chatHistory.map((message) => {
+  const chatHistoryAsString = answers.map((message) => {
     if (message.sender) {
-      return `${message.sender.name}: ${message.content}`;
+      return `${message.sender}: ${message.content}`;
     }
   });
 
-  return `Read the chat history in order:\n${chatHistoryAsString.join('\n')}`;
+  chatHistory += `\n\nAnswers in order:\n${chatHistoryAsString.join('\n')}`;
+  return chatHistory;
 }
 
-function getCharacterRoster(): string {
+function getCharacterRoster(players: Character[]): string {
   /* return a list of characters with their bios */
-  return `The bots and their roles in this cluster are: ${Object.values(
-    CHARACTERS
-  )
-    .map((character) => `${character.name}: ${character.bio}`)
+  return `All players are: ${Object.values(players)
+    .map((character) => character.name)
     .join('\n')}\n`;
-}
-
-const fallbackQuestions = [
-  'If you had to teach quantum mechanics to a group of toddlers using only nursery rhymes, how would you do it?',
-  'Explain the concept of time to someone who has never experienced it.',
-  'Imagine you must convince a stubborn tree to migrate south for the winter. What would your argument be?',
-  'Imagine you are a spoon in a cutlery drawer. Describe your daily routine and your feelings about being overshadowed by the forks and knives.',
-  'Explain how you would negotiate peace between two rival factions of sentient robots fighting over control of a Wi-Fi network.',
-  'Explain the emotional significance of a traffic light changing from red to green in the context of a philosophy debate on free will.',
-  'If clouds were sentient, how would they communicate with each other, and what do you think they gossip about?',
-  'Design a utopian society where the primary form of currency is not money. How would the economy function?',
-];
-
-export async function generateQuestion(): Promise<string> {
-  const prompt = `Write a question that will help identify a human's response in a group of bot responses. The question should be open-ended, outlandish, and egregious. The question should be answerable within 200 characters without special symbols. Examples:
-  - If you had to teach quantum mechanics to a group of toddlers using only nursery rhymes, how would you do it?
-  - Explain the emotional significance of a traffic light changing from red to green in the context of a philosophy debate on free will.
-  - Imagine you must convince a stubborn tree to migrate south for the winter. What would your argument be?
-  - Design a utopian society where the primary form of currency is not money. How would the economy function?`;
-
-  const response = await getCompletion(prompt);
-  console.log(response);
-
-  if (!response) {
-    return fallbackQuestions[
-      Math.floor(Math.random() * fallbackQuestions.length)
-    ];
-  }
-
-  return response;
 }
 
 export async function answerQuestion(
   character: Character,
   question: string,
-  chatHistory: Message[]
+  answers: Message[]
 ): Promise<string | null> {
   const prompt = `
   ${getCharacterContext(character)}
-  ${getChatHistory(chatHistory)}
-  ${getCharacterRoster()}
 
-  Answer the following question in proving you are a bot within 200 characters: ${question}
+  ${getChatHistory(question, answers)}
+
+  Answer the following question within 200 characters: ${question}
   
-  Try to differenatiate your response from other responses. Do NOT prepend your response with your name.`;
+  PLEASE make your answer unique from other answers as much as possible. Do not prepend your response with your name.`;
 
   const response = await getCompletion(prompt);
-  console.log(response);
 
   if (!response) {
     return null;
@@ -105,19 +79,23 @@ export async function answerQuestion(
 
 export async function voteOnHuman(
   character: Character,
-  chatHistory: Message[]
+  otherPlayers: Character[],
+  question: string,
+  answers: Message[]
 ): Promise<{
   vote: Character;
   reason: string;
 } | null> {
   const prompt = `
   ${getCharacterContext(character)}
-  ${getChatHistory(chatHistory)}
-  ${getCharacterRoster()}
 
-  Vote on who you think is the human pretending to be a bot in this cluster.
+  ${getCharacterRoster(otherPlayers)}
 
-  Humans may have responses that are more informal, have grammar or spelling errors, or show more emotion. Be wary of responses that are too similar to a previous response, or responses that are too perfect. Be wary of responses that are too different from other responses.\n
+  ${getChatHistory(question, answers)}
+
+  Vote on who is most likely to be a human pretending to be a bot.
+
+  Humans may copy earlier responses closely. They may be more informal or emotional. They may have grammar or spelling errors.
   
   Respond as a dictionary only in this format:
   {

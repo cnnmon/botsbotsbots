@@ -1,12 +1,14 @@
-import {
-  Character,
-  CharacterStatus,
-  SYSTEM_CHARACTER,
-} from '@/utils/characters';
+import { Character, SYSTEM_CHARACTER } from '@/constants/characters';
 import Image from 'next/image';
 
-function Status({ character }: { character: Character }) {
-  const { status, name } = character;
+function Status({
+  character,
+  isAlive,
+}: {
+  character: Character;
+  isAlive?: boolean;
+}) {
+  const { name } = character;
   if (name === SYSTEM_CHARACTER) {
     return (
       <div className="flex items-center">
@@ -16,7 +18,6 @@ function Status({ character }: { character: Character }) {
     );
   }
 
-  const isAlive = status === CharacterStatus.Alive;
   return (
     <div className="flex items-center">
       <div
@@ -29,13 +30,19 @@ function Status({ character }: { character: Character }) {
   );
 }
 
-export default function Profile({ character }: { character: Character }) {
+export default function Profile({
+  character,
+  isAlive,
+}: {
+  character: Character;
+  isAlive?: boolean;
+}) {
   const { name, bio, images, est } = character;
   return (
     <div
       className="p-4 flex items-center flex-col overflow-y-auto"
       style={{
-        height: 'calc(100% - 27px)',
+        height: 'calc(100% - 30px)',
       }}
     >
       <Image
@@ -47,7 +54,7 @@ export default function Profile({ character }: { character: Character }) {
         <h1 className="line-clamp-1">{name}</h1>
         <h2 className="mt-[-10px]">{bio}</h2>
         <p className="text-gray-color">Joined: {est.toString()}</p>
-        <Status character={character} />
+        <Status character={character} isAlive={isAlive} />
       </div>
     </div>
   );

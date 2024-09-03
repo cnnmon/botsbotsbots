@@ -1,3 +1,7 @@
+/**
+ * CHARACTERS outlines static information about each character in the game.
+ */
+
 import { StaticImageData } from 'next/image';
 import fredPng from '@/public/profiles/fred.png';
 import fredGif from '@/public/profiles/fred.gif';
@@ -5,7 +9,7 @@ import fredPixel from '@/public/profiles/fred-pixel.png';
 import shadow from '@/public/profiles/shadow.png';
 
 export const YOU_CHARACTER = 'Fred';
-export const SYSTEM_CHARACTER = 'BigCo System Helper';
+export const SYSTEM_CHARACTER = 'System';
 
 type ImageInfo = {
   png: StaticImageData;
@@ -18,32 +22,40 @@ export enum CharacterStatus {
   Eliminated = 'Eliminated',
 }
 
+export const GAME_PLAYER_NAMES = [
+  'Alice',
+  'Bob',
+  'Charles',
+  'Eve',
+  YOU_CHARACTER,
+] as const;
+
+export type GamePlayerName = (typeof GAME_PLAYER_NAMES)[number];
+export type CharacterName = GamePlayerName | typeof SYSTEM_CHARACTER;
+
 type CharacterInfo = {
-  name: string;
+  name: CharacterName;
   images: ImageInfo;
   bio: string;
   est: Date;
-  status?: CharacterStatus;
 };
 
 export class Character {
-  name: string;
+  name: CharacterName;
   images: ImageInfo;
   bio: string;
   est: Date;
-  status: CharacterStatus;
 
   constructor(info: CharacterInfo) {
-    const { name, images, bio, est, status } = info;
+    const { name, images, bio, est } = info;
     this.name = name;
     this.images = images;
     this.bio = bio;
     this.est = est;
-    this.status = status || CharacterStatus.Alive;
   }
 }
 
-export const GAME_PLAYERS = {
+export const GAME_PLAYERS: Record<GamePlayerName, Character> = {
   Alice: new Character({
     name: 'Alice',
     images: {
@@ -63,6 +75,16 @@ export const GAME_PLAYERS = {
     },
     bio: 'customer service bot',
     est: new Date('2025-11-15 00:00:00'),
+  }),
+  Charles: new Character({
+    name: 'Charles',
+    images: {
+      png: fredPng,
+      gif: fredPng,
+      pixel: fredPng,
+    },
+    bio: 'hr bot',
+    est: new Date('2027-2-17 00:00:00'),
   }),
   Eve: new Character({
     name: 'Eve',
@@ -86,7 +108,7 @@ export const GAME_PLAYERS = {
   }),
 };
 
-export const CHARACTERS = {
+export const CHARACTERS: Record<CharacterName, Character> = {
   [SYSTEM_CHARACTER]: new Character({
     name: SYSTEM_CHARACTER,
     images: {

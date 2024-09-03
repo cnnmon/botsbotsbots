@@ -1,27 +1,29 @@
-import { GameStage } from '@/utils/game';
 import Textbox from '@/components/Chat/Textbox';
+import { LevelStage } from '@/utils/levels';
 
 export default function ActionFooter({
   stage,
-  handleStartQuestion,
+  handleStartLevel,
+  handleRestartGame,
   chatboxText,
   setChatboxText,
   sendMessage,
   focusTextbox,
 }: {
-  stage: GameStage;
-  handleStartQuestion: () => void;
+  stage: LevelStage;
+  handleStartLevel: () => void;
+  handleRestartGame: () => void;
   chatboxText: string;
   setChatboxText: (text: string) => void;
   sendMessage: () => void;
   focusTextbox: () => void;
 }) {
-  if (stage === GameStage.ack) {
+  if (stage === LevelStage.ack) {
     return (
       <div className="flex justify-center items-center h-16">
         <button
           className="button border-[1.5px] border-primary-color p-2 w-1/2 text-primary-color hover:bg-primary-color hover:text-white"
-          onClick={handleStartQuestion}
+          onClick={handleStartLevel}
         >
           Ack
         </button>
@@ -29,7 +31,7 @@ export default function ActionFooter({
     );
   }
 
-  if (stage === GameStage.answer) {
+  if (stage === LevelStage.answer) {
     return (
       <Textbox
         chatboxText={chatboxText}
@@ -40,14 +42,14 @@ export default function ActionFooter({
     );
   }
 
-  if (stage === GameStage.results) {
+  if (stage === LevelStage.lose) {
     return (
       <div className="flex justify-center items-center h-16">
         <button
-          className="button border-[1.5px] border-primary-color p-2 w-1/2 text-primary-color hover:bg-primary-color hover:text-white"
-          onClick={handleStartQuestion}
+          className="button border-[1.5px] border-primary-color p-2 w-1/2 text-primary-color hover:bg-white hover:text-primary-color bg-primary-color text-white"
+          onClick={handleRestartGame}
         >
-          Start next round
+          Try again
         </button>
       </div>
     );

@@ -1,5 +1,9 @@
-import { YOU_CHARACTER, SYSTEM_CHARACTER } from '@/utils/characters';
-import { Message } from '@/utils/constants';
+import {
+  CHARACTERS,
+  SYSTEM_CHARACTER,
+  YOU_CHARACTER,
+} from '@/constants/characters';
+import { Message } from '@/utils/message';
 import Image from 'next/image';
 
 export default function ChatMessage({
@@ -22,9 +26,9 @@ export default function ChatMessage({
     );
   }
 
-  const { name, images } = sender;
-  const sentByYou = name === YOU_CHARACTER;
-  const sentBySystem = name === SYSTEM_CHARACTER;
+  const sentByYou = sender === YOU_CHARACTER;
+  const sentBySystem = sender === SYSTEM_CHARACTER;
+  const { images } = CHARACTERS[sender];
   return (
     <div className={`flex items-start ${coalesce ? 'mt-1' : 'mt-4'}`}>
       <div className="mr-2 w-20">
@@ -32,9 +36,9 @@ export default function ChatMessage({
           <Image
             src={images.png}
             placeholder="blur"
-            alt={name}
+            alt={sender}
             className="button no-drag"
-            onClick={() => openWindow(sender.name)}
+            onClick={() => openWindow(sender)}
           />
         )}
       </div>
@@ -42,7 +46,7 @@ export default function ChatMessage({
         {!coalesce && (
           <div className="flex justify-between">
             <p>
-              {name} {sentByYou && '(You)'}
+              {sender} {sentByYou && '(You)'}
             </p>
             <p>{timestamp}</p>
           </div>

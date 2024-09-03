@@ -6,7 +6,7 @@ import exitSvg from '@/public/exit.svg';
 
 function Lines() {
   return (
-    <div className="flex-col w-full draggable mb-[-4px] mt-[1px]">
+    <div className="w-full mt-1">
       {[1, 2, 3].map((_, index) => (
         <div
           className="h-[7px] border-t-[1.5px] border-primary-color"
@@ -17,28 +17,47 @@ function Lines() {
   );
 }
 
-function TopBar({ exitProfile }: { exitProfile?: () => void }) {
+function TopBar({ name }: { name: string }) {
+  return (
+    <div className="p-1 w-[1000%] cursor-grab flex items-center draggable">
+      <Lines />
+      <p className="min-w-20 px-2 text-center">{name}</p>
+      <Lines />
+    </div>
+  );
+}
+
+function TopBarContainer({
+  name,
+  exitProfile,
+}: {
+  name: string;
+  exitProfile?: () => void;
+}) {
   if (exitProfile) {
     return (
-      <div className="frame border-b-[1.5px] border-primary-color flex">
-        <div className="p-1 w-[800%] cursor-grab">
-          <Lines />
+      <>
+        <div className="frame border-b-[1.5px] border-primary-color flex h-8">
+          <TopBar name={name} />
         </div>
-        <div className="frame border-l-[1.5px] border-primary-color">
+        <div
+          className="frame border-l-[1.5px] border-primary-color absolute top-0 right-0 h-8 button border-b-[1.5px]"
+          style={{ width: '50px' }}
+        >
           <Image
             src={exitSvg}
             alt=""
-            className="no-drag button"
+            className="no-drag"
             onClick={exitProfile}
           />
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="frame border-b-[1.5px] border-primary-color flex p-1 cursor-grab">
-      <Lines />
+    <div className="frame border-b-[1.5px] border-primary-color">
+      <TopBar name={name} />
     </div>
   );
 }
@@ -86,7 +105,6 @@ export default function Window({
       handle=".draggable"
       defaultPosition={position}
       onStop={(_, data) => {
-        console.log(data);
         const { x, y } = data;
         if (x && y) {
           setWindowPosition(windowStorageKey, data);
@@ -95,7 +113,7 @@ export default function Window({
       nodeRef={nodeRef}
     >
       <div className="window top-[20%] left-[20%]" ref={nodeRef} style={style}>
-        <TopBar exitProfile={exitProfile} />
+        <TopBarContainer exitProfile={exitProfile} name={name} />
         {content}
       </div>
     </Draggable>
