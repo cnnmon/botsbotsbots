@@ -3,11 +3,21 @@ import { useEffect } from 'react';
 const MAX_CHAT_LENGTH = 200;
 
 function loadChatboxText() {
-  return localStorage.getItem('chatboxText') || '';
+  try {
+    const chatboxText = localStorage.getItem('chatboxText');
+    return chatboxText || '';
+  } catch (e) {
+    console.log(e);
+    return '';
+  }
 }
 
 function storeChatboxText(text: string) {
-  localStorage.setItem('chatboxText', text);
+  try {
+    localStorage.setItem('chatboxText', text);
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 export default function Textbox({

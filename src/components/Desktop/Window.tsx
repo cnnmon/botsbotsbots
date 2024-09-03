@@ -66,10 +66,14 @@ function getWindowPosition(
   windowStorageKey: string,
   defaultPosition: ControlPosition
 ): ControlPosition {
-  const storedPosition = localStorage.getItem(windowStorageKey);
-  if (storedPosition) {
-    const { x, y } = JSON.parse(storedPosition);
-    return { x, y };
+  try {
+    const storedPosition = localStorage.getItem(windowStorageKey);
+    if (storedPosition) {
+      const { x, y } = JSON.parse(storedPosition);
+      return { x, y };
+    }
+  } catch (e) {
+    console.error(e);
   }
 
   return defaultPosition;
@@ -80,7 +84,11 @@ function setWindowPosition(
   position: ControlPosition
 ) {
   const { x, y } = position;
-  localStorage.setItem(windowStorageKey, JSON.stringify({ x, y }));
+  try {
+    localStorage.setItem(windowStorageKey, JSON.stringify({ x, y }));
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 export default function Window({

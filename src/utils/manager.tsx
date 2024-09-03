@@ -153,6 +153,9 @@ export default function useGameManager() {
     const voteCounts = {} as Record<string, number>;
     let maxVote = 0;
     let votedPlayer: GamePlayerName = YOU_CHARACTER;
+    let votedPlayerThatIsNotYou: GamePlayerName = gameState.alive.find(
+      (name) => name !== votedPlayer
+    )!;
 
     for (const vote of gameState.votes) {
       if (!vote.metadata) {
@@ -165,23 +168,30 @@ export default function useGameManager() {
       if (voteCounts[name] > maxVote) {
         maxVote = voteCounts[name];
         votedPlayer = name;
+        if (name !== YOU_CHARACTER) {
+          votedPlayerThatIsNotYou = name;
+        }
       }
     }
 
     // send your "vote" automatically, which is either the most voted player (eliminating them) or the second most voted player
-    let myVote: GamePlayerName =
-      votedPlayer === YOU_CHARACTER
-        ? gameState.alive.find((name) => name !== votedPlayer)!
-        : votedPlayer;
     sendMessage(
       new Message({
         sender: YOU_CHARACTER,
-        content: `I vote for ${myVote}.`,
+        content: `I vote for ${votedPlayerThatIsNotYou}.`,
         metadata: {
-          vote: CHARACTERS[myVote],
+          vote: CHARACTERS[votedPlayerThatIsNotYou],
         },
       })
     );
+
+    if (
+      votedPlayer === YOU_CHARACTER &&
+      voteCounts[votedPlayerThatIsNotYou] + 1 >= maxVote
+    ) {
+      // your vote swayed the decision!
+      votedPlayer = votedPlayerThatIsNotYou;
+    }
 
     // eliminate the player with the most votes
     endLevel(votedPlayer);

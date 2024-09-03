@@ -47,7 +47,11 @@ export default function Chat({
     }, 0);
 
     /* reset chatbox text */
-    localStorage.removeItem('chatboxText');
+    try {
+      localStorage.removeItem('chatboxText');
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const focusTextbox = () => {
@@ -68,7 +72,11 @@ export default function Chat({
         }}
         onScroll={(e: React.UIEvent<HTMLDivElement>) => {
           const scrollTop = (e.target as HTMLDivElement).scrollTop;
-          localStorage.setItem('scrollTop', scrollTop.toString());
+          try {
+            localStorage.setItem('scrollTop', scrollTop.toString());
+          } catch (e) {
+            console.log(e);
+          }
         }}
       >
         <p className="whitespace-pre-wrap italic text-gray-color text-center px-4">
