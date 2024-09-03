@@ -93,7 +93,7 @@ export default function Desktop() {
             <button
               className="button p-2 bg-header-color fixed border-[1.5px] border-primary-color text-primary-color hover:bg-primary-color hover:text-white"
               style={{
-                top: `${25 + index * 5}vh`,
+                top: `${30 + index * 5}vh`,
                 left: '2vw',
                 zIndex: 0,
               }}
