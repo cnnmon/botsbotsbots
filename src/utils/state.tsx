@@ -98,47 +98,63 @@ const handleEndLevel = (
   state: GameState,
   mostVotedPlayerName: GamePlayerName | null
 ) => {
-  const newMessages: Message[] = [];
-  let newLevel = state.level;
-
   if (!mostVotedPlayerName) {
     // there was a tie!!
-    state.stage = LevelStage.lose;
-    newMessages.push(
-      new Message({
-        sender: SYSTEM_CHARACTER,
-        content: `Inconclusive results. Try again.`,
-      })
-    );
-  } else if (mostVotedPlayerName === YOU_CHARACTER) {
-    // you lose!
-    state.stage = LevelStage.lose;
-    newMessages.push(
-      new Message({
-        sender: SYSTEM_CHARACTER,
-        content: `You have been eliminated. Game over.`,
-      })
-    );
-  } else {
-    // you move on to the next level!
-    state.stage = LevelStage.win;
-    newLevel += 1;
-    newMessages.push(
-      new Message({
-        sender: SYSTEM_CHARACTER,
-        content: `${mostVotedPlayerName} has been eliminated, but to maintain system integrity, we must continue. Advance to the next level to proceed.`,
-      })
-    );
+    return {
+      ...state,
+      stage: LevelStage.lose,
+      history: {
+        ...state.history,
+        [state.level]: [
+          ...state.history[state.level],
+          new Message({
+            sender: SYSTEM_CHARACTER,
+            content: `Inconclusive results. Try again.`,
+          }),
+        ],
+      },
+    };
   }
 
+  const alive = state.alive.filter((player) => player !== mostVotedPlayerName);
+  const eliminated = [...state.eliminated, mostVotedPlayerName];
+
+  if (mostVotedPlayerName === YOU_CHARACTER) {
+    // you lose!
+    return {
+      ...state,
+      stage: LevelStage.lose,
+      eliminated,
+      alive,
+      history: {
+        ...state.history,
+        [state.level]: [
+          ...state.history[state.level],
+          new Message({
+            sender: SYSTEM_CHARACTER,
+            content: `You have been eliminated. Game over.`,
+          }),
+        ],
+      },
+    };
+  }
+
+  // you move on to the next level!
   return {
     ...state,
-    level: newLevel,
-    eliminated: [...state.eliminated, mostVotedPlayerName],
-    alive: [...state.alive.filter((player) => player !== mostVotedPlayerName)],
+    stage: LevelStage.win,
+    level: state.level + 1,
+    eliminated,
+    alive,
     history: {
       ...state.history,
-      [state.level]: [...state.history[state.level], ...newMessages],
+      [state.level]: [
+        ...state.history[state.level],
+        new Message({
+          sender: SYSTEM_CHARACTER,
+          content: `${mostVotedPlayerName} has been eliminated, but to maintain system integrity, we must continue. Advance to the next level to proceed.`,
+        }),
+      ],
     },
   };
 };
