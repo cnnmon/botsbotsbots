@@ -64,17 +64,20 @@ function TopBarContainer({
 
 export default function Window({
   name,
+  windows,
   content,
   style,
   defaultPosition,
   exitProfile,
 }: {
   name: string;
+  windows: string[];
   content: React.ReactNode;
   style: React.CSSProperties;
   defaultPosition: ControlPosition;
   exitProfile?: () => void;
 }) {
+  const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState(defaultPosition);
 
   const storageKey = `window-${name}`;
@@ -85,13 +88,14 @@ export default function Window({
       const { x, y } = JSON.parse(storedPosition);
       setPosition({ x, y });
     }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(storageKey, JSON.stringify(position));
-  }, [position]);
+    setIsVisible(windows.includes(name));
+  }, [windows]);
 
   const nodeRef = useRef(null);
+
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <Draggable
@@ -100,6 +104,11 @@ export default function Window({
       onStop={(_, data) => {
         const { x, y } = data;
         setPosition({ x, y });
+        try {
+          localStorage.setItem(storageKey, JSON.stringify({ x, y }));
+        } catch (e) {
+          console.error('Error saving window position:', e);
+        }
       }}
       nodeRef={nodeRef}
     >

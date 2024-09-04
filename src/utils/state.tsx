@@ -76,23 +76,24 @@ const handleSendMessage = (state: GameState, message: Message): GameState => {
     state.stage = LevelStage.results;
   }
 
-  state.history[state.level].push(message);
-  return state;
+  return {
+    ...state,
+    history: {
+      ...state.history,
+      [state.level]: [...state.history[state.level], message],
+    },
+  };
 };
 
 const handleEndLevel = (
   state: GameState,
   mostVotedPlayerName: GamePlayerName
 ) => {
-  state.eliminated = [...state.eliminated, mostVotedPlayerName];
-  state.alive = [
-    ...state.alive.filter((player) => player !== mostVotedPlayerName),
-  ];
-
+  const newMessages: Message[] = [];
   if (mostVotedPlayerName === YOU_CHARACTER) {
     // you lose!
     state.stage = LevelStage.lose;
-    state.history[state.level].push(
+    newMessages.push(
       new Message({
         sender: SYSTEM_CHARACTER,
         content: `You have been eliminated. Game over.`,
@@ -101,22 +102,24 @@ const handleEndLevel = (
   } else {
     // you move on to the next level!
     state.stage = LevelStage.win;
-    state.history[state.level].push(
+    newMessages.push(
       new Message({
         sender: SYSTEM_CHARACTER,
         content: `${mostVotedPlayerName} has been eliminated, but to maintain system integrity, we must continue. Advance to the next level to proceed.`,
       })
     );
-    state.level += 1;
-    state.history[state.level + 1].push(
-      new Message({
-        content: `This is a work in progress. Building out new levels and harder difficulties soon!`,
-        sender: SYSTEM_CHARACTER,
-      })
-    );
   }
 
-  return state;
+  return {
+    ...state,
+    level: state.level + 1,
+    eliminated: [...state.eliminated, mostVotedPlayerName],
+    alive: [...state.alive.filter((player) => player !== mostVotedPlayerName)],
+    history: {
+      ...state.history,
+      [state.level]: [...state.history[state.level], ...newMessages],
+    },
+  };
 };
 
 export const gameReducer = (

@@ -11,7 +11,7 @@ import {
   GAME_PLAYER_NAMES,
   SYSTEM_CHARACTER,
 } from '@/constants/characters';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { saveGameState } from '@/utils/storage';
 import { LEVELS, LevelStage } from '@/utils/levels';
 import { BsCheck } from 'react-icons/bs';
@@ -55,19 +55,10 @@ export default function Desktop() {
     defaultPosition: ControlPosition;
     isExitable?: boolean;
   }) {
-    const [isVisible, setIsVisible] = useState(false);
-
-    useEffect(() => {
-      setIsVisible(gameState.windows.includes(name));
-    }, []);
-
-    if (!isVisible) {
-      return null;
-    }
-
     return (
       <Window
         name={name}
+        windows={gameState.windows}
         exitProfile={isExitable ? () => exitWindow(name) : undefined}
         style={{
           width: `${width}`,
@@ -93,21 +84,37 @@ export default function Desktop() {
         </h2>
       </div>
 
+      <WindowContainer
+        name="players"
+        width="280px"
+        height="43vh"
+        defaultPosition={{ x: 520, y: 50 }}
+        content={
+          <PlayerList
+            alive={gameState.alive}
+            eliminated={gameState.eliminated}
+            openWindow={openWindow}
+          />
+        }
+      />
+
       {LEVELS.map((_, index: number) => (
         <div key={`level-${index}`}>
-          <button
-            className="button p-2 bg-header-color fixed border-[1.5px] border-primary-color text-primary-color hover:bg-primary-color hover:text-white left-8"
-            style={{
-              top: `${32 + index * 6}vh`,
-              zIndex: 0,
-            }}
-            onClick={() => {
-              openWindow(`level-${index}`);
-              openWindow('players');
-            }}
-          >
-            level-{index} {gameState.level > index && <BsCheck />}
-          </button>
+          {gameState.level >= index && (
+            <button
+              className="button p-2 bg-header-color fixed border-[1.5px] border-primary-color text-primary-color hover:bg-primary-color hover:text-white left-8 w-28 flex items-center"
+              style={{
+                top: `${32 + index * 6}vh`,
+                zIndex: 0,
+              }}
+              onClick={() => {
+                openWindow(`level-${index}`);
+                openWindow('players');
+              }}
+            >
+              level-{index} {gameState.level > index && <BsCheck />}
+            </button>
+          )}
           <WindowContainer
             name={`level-${index}`}
             width="550px"
@@ -138,20 +145,6 @@ export default function Desktop() {
       >
         settings
       </button>
-
-      <WindowContainer
-        name="players"
-        width="280px"
-        height="43vh"
-        defaultPosition={{ x: 520, y: 50 }}
-        content={
-          <PlayerList
-            alive={gameState.alive}
-            eliminated={gameState.eliminated}
-            openWindow={openWindow}
-          />
-        }
-      />
 
       {Object.keys(CHARACTERS).map((characterName, index) => {
         const name = characterName as CharacterName;
