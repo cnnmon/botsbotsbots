@@ -117,7 +117,9 @@ export default function Desktop() {
                 openWindow('players');
               }}
             >
-              level-{index} {gameState.level > index && <BsCheck />}
+              level-{index}{' '}
+              {(gameState.level > index ||
+                gameState.stage === LevelStage.win) && <BsCheck />}
             </button>
           )}
           <WindowContainer

@@ -16,9 +16,8 @@ const questions = [
 const behaviors = [
   'Use a word that is not in the dictionary.',
   'Write your response in the form of a haiku.',
-  'Start your response with a random, slightly off-topic fact or observation.',
+  'Start your response with a random, off-topic fact.',
   'Include an unexpected metaphor or simile in your response.',
-  'Begin your response with a creative, imaginary scenario.',
   'Use a random historical reference that seems only tangentially related.',
   'Include an unrelated but intriguing trivia fact in your response.',
   'Pretend you are a character from a famous novel or movie, without naming the character.',
