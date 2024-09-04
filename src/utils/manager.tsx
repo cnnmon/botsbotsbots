@@ -48,7 +48,7 @@ export default function useGameManager() {
     dispatch({ type: Action.RESET_GAME });
   };
 
-  const endLevel = (mostVotedPlayerName: GamePlayerName) => {
+  const endLevel = (mostVotedPlayerName: GamePlayerName | null) => {
     dispatch({ type: Action.END_LEVEL, payload: mostVotedPlayerName });
   };
 
@@ -165,7 +165,7 @@ export default function useGameManager() {
     // tally votes
     const voteCounts = {} as Record<string, number>;
     let maxVote = 0;
-    let votedPlayer: GamePlayerName = YOU_CHARACTER;
+    let votedPlayer: GamePlayerName | null = YOU_CHARACTER;
     let votedPlayerThatIsNotYou: GamePlayerName = gameState.alive.find(
       (name) => name !== votedPlayer
     )!;
@@ -198,12 +198,14 @@ export default function useGameManager() {
       })
     );
 
-    if (
-      votedPlayer === YOU_CHARACTER &&
-      voteCounts[votedPlayerThatIsNotYou] + 1 >= maxVote
-    ) {
-      // your vote swayed the decision!
-      votedPlayer = votedPlayerThatIsNotYou;
+    if (votedPlayer === YOU_CHARACTER) {
+      if (voteCounts[votedPlayerThatIsNotYou] + 1 > maxVote) {
+        // your vote swayed the decision!
+        votedPlayer = votedPlayerThatIsNotYou;
+      } else if (voteCounts[votedPlayerThatIsNotYou] + 1 == maxVote) {
+        // there is a tie
+        votedPlayer = null;
+      }
     }
 
     // eliminate the player with the most votes

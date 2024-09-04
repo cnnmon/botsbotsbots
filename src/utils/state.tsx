@@ -52,7 +52,7 @@ type ActionType =
     }
   | {
       type: Action.END_LEVEL;
-      payload: GamePlayerName;
+      payload: GamePlayerName | null;
     }
   | {
       type: Action.COMMIT;
@@ -96,10 +96,21 @@ const handleSendMessage = (state: GameState, message: Message): GameState => {
 
 const handleEndLevel = (
   state: GameState,
-  mostVotedPlayerName: GamePlayerName
+  mostVotedPlayerName: GamePlayerName | null
 ) => {
   const newMessages: Message[] = [];
-  if (mostVotedPlayerName === YOU_CHARACTER) {
+  let newLevel = state.level;
+
+  if (!mostVotedPlayerName) {
+    // there was a tie!!
+    state.stage = LevelStage.lose;
+    newMessages.push(
+      new Message({
+        sender: SYSTEM_CHARACTER,
+        content: `Inconclusive results. Try again.`,
+      })
+    );
+  } else if (mostVotedPlayerName === YOU_CHARACTER) {
     // you lose!
     state.stage = LevelStage.lose;
     newMessages.push(
@@ -111,6 +122,7 @@ const handleEndLevel = (
   } else {
     // you move on to the next level!
     state.stage = LevelStage.win;
+    newLevel += 1;
     newMessages.push(
       new Message({
         sender: SYSTEM_CHARACTER,
@@ -121,7 +133,7 @@ const handleEndLevel = (
 
   return {
     ...state,
-    level: state.level + 1,
+    level: newLevel,
     eliminated: [...state.eliminated, mostVotedPlayerName],
     alive: [...state.alive.filter((player) => player !== mostVotedPlayerName)],
     history: {
