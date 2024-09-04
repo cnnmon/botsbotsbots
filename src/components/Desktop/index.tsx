@@ -188,7 +188,7 @@ export default function Desktop() {
               >
                 Tiffany
               </a>
-              . I take suggestions!
+              .
               <br />
               <a
                 href="https://github.com/cnnmon/botsbotsbots"
