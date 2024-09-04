@@ -12,13 +12,14 @@ import {
   SYSTEM_CHARACTER,
 } from '@/constants/characters';
 import { useEffect } from 'react';
-import { saveGameState } from '@/utils/storage';
+import { loadGameState } from '@/utils/storage';
 import { LEVELS, LevelStage } from '@/utils/levels';
 import { BsCheck } from 'react-icons/bs';
 
 export default function Desktop() {
   const {
     gameState,
+    setGameState,
     openWindow,
     exitWindow,
     sendMessage,
@@ -29,8 +30,12 @@ export default function Desktop() {
   } = useGameManager();
 
   useEffect(() => {
-    saveGameState(gameState);
-  }, [gameState]);
+    const savedGameState = loadGameState();
+    console.log(savedGameState);
+    if (savedGameState) {
+      setGameState(savedGameState);
+    }
+  }, []);
 
   useEffect(() => {
     if (gameState.stage === LevelStage.vote) {

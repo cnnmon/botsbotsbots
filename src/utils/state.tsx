@@ -9,7 +9,7 @@ import {
   SYSTEM_CHARACTER,
   YOU_CHARACTER,
 } from '@/constants/characters';
-import { resetGameState } from '@/utils/storage';
+import { resetGameState, saveGameState } from '@/utils/storage';
 
 export enum Action {
   OPEN_WINDOW = 'OPEN_WINDOW',
@@ -17,8 +17,10 @@ export enum Action {
   SEND_MESSAGE = 'SEND_MESSAGE',
   RESET_GAME = 'RESET_GAME',
   SET_WAITING = 'SET_WAITING',
-  SET_STATE = 'SET_STATE',
+  SET_GAME_STATE = 'SET_GAME_STATE',
+  SET_STAGE = 'SET_STAGE',
   END_LEVEL = 'END_LEVEL',
+  COMMIT = 'COMMIT',
 }
 
 type ActionType =
@@ -41,12 +43,19 @@ type ActionType =
       type: Action.SET_WAITING;
     }
   | {
-      type: Action.SET_STATE;
+      type: Action.SET_GAME_STATE;
+      payload: GameState;
+    }
+  | {
+      type: Action.SET_STAGE;
       payload: LevelStage;
     }
   | {
       type: Action.END_LEVEL;
       payload: GamePlayerName;
+    }
+  | {
+      type: Action.COMMIT;
     };
 
 const handleSendMessage = (state: GameState, message: Message): GameState => {
@@ -141,13 +150,18 @@ export const gameReducer = (
       return handleSendMessage(state, action.payload);
     case Action.RESET_GAME:
       return resetGameState();
-    case Action.SET_STATE:
+    case Action.SET_GAME_STATE:
+      return action.payload;
+    case Action.SET_STAGE:
       return {
         ...state,
         stage: action.payload,
       };
     case Action.END_LEVEL:
       return handleEndLevel(state, action.payload);
+    case Action.COMMIT:
+      saveGameState(state);
+      return state;
     default:
       return state;
   }

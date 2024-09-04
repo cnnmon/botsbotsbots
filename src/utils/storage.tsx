@@ -6,16 +6,10 @@ import { GameState, loadLevel } from '@/utils/levels';
 
 const GAMESTATE_KEY = 'gameState'; // local storage
 
-export const loadInitialGameState = (): GameState => {
-  try {
-    const savedGameState = localStorage.getItem(GAMESTATE_KEY);
-    if (!savedGameState) {
-      return loadLevel(0);
-    }
+export const loadGameState = (): GameState | undefined => {
+  const savedGameState = localStorage.getItem(GAMESTATE_KEY);
+  if (savedGameState) {
     return JSON.parse(savedGameState);
-  } catch (e) {
-    console.error('Error loading game state:', e);
-    return loadLevel(0);
   }
 };
 

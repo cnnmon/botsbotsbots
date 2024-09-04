@@ -11,12 +11,16 @@ import {
 } from '@/constants/characters';
 import { useReducer } from 'react';
 import { Message } from '@/utils/message';
-import { loadInitialGameState, scrollToBottom } from '@/utils/storage';
+import { saveGameState, scrollToBottom } from '@/utils/storage';
 import { Action, gameReducer } from '@/utils/state';
-import { LevelStage } from '@/utils/levels';
+import { GameState, LevelStage, loadLevel } from '@/utils/levels';
 
 export default function useGameManager() {
-  const [gameState, dispatch] = useReducer(gameReducer, loadInitialGameState());
+  const [gameState, dispatch] = useReducer(gameReducer, loadLevel(0));
+
+  const setGameState = (newState: GameState) => {
+    dispatch({ type: Action.SET_GAME_STATE, payload: newState });
+  };
 
   const openWindow = (name: string) => {
     if (!gameState.windows.includes(name)) {
@@ -37,7 +41,7 @@ export default function useGameManager() {
   };
 
   const setStage = (stage: LevelStage) => {
-    dispatch({ type: Action.SET_STATE, payload: stage });
+    dispatch({ type: Action.SET_STAGE, payload: stage });
   };
 
   const resetGame = () => {
@@ -46,6 +50,10 @@ export default function useGameManager() {
 
   const endLevel = (mostVotedPlayerName: GamePlayerName) => {
     dispatch({ type: Action.END_LEVEL, payload: mostVotedPlayerName });
+  };
+
+  const commit = () => {
+    dispatch({ type: Action.COMMIT });
   };
 
   const handleStartLevel = async () => {
@@ -99,6 +107,9 @@ export default function useGameManager() {
         );
       }
     }
+
+    // save once all generations are in
+    commit();
   };
 
   const handleStartVoting = async () => {
@@ -145,6 +156,9 @@ export default function useGameManager() {
         })
       );
     }
+
+    // save once all generations are in
+    commit();
   };
 
   const handleEndLevel = () => {
@@ -194,10 +208,14 @@ export default function useGameManager() {
 
     // eliminate the player with the most votes
     endLevel(votedPlayer);
+
+    // save once all generations are in
+    commit();
   };
 
   return {
     gameState,
+    setGameState,
     openWindow,
     exitWindow,
     handleStartLevel,
