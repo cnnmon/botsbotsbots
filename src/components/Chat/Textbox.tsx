@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const MAX_CHAT_LENGTH = 200;
+export const MAX_CHAT_LENGTH = 200;
 
 function loadChatboxText() {
   try {

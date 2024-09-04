@@ -172,6 +172,7 @@ export default function useGameManager() {
           .filter((p) => p !== playerName)
           .map((p) => CHARACTERS[p]),
         gameState.publicQuestion,
+        gameState.privateQuestion,
         gameState.answers
       );
 

@@ -5,6 +5,7 @@
 import OpenAI from 'openai';
 import { Character, CHARACTERS } from '@/constants/characters';
 import { Message } from '@/utils/message';
+import { MAX_CHAT_LENGTH } from '@/components/Chat/Textbox';
 
 const MODEL = 'gpt-4o-mini-2024-07-18';
 
@@ -30,8 +31,20 @@ const getCompletion = async (prompt: string) => {
   return completion.choices[0].message.content;
 };
 
-function getChatHistory(question: string, answers: Message[]): string {
-  let chatHistory = `The question was: ${question}`;
+function getChatHistory(
+  publicQuestion: string,
+  privateQuestion: string,
+  answers: Message[]
+): string {
+  let chatHistory = '';
+
+  if (publicQuestion) {
+    chatHistory += `The public question was: ${publicQuestion}\n`;
+  }
+
+  if (privateQuestion) {
+    chatHistory += `The private question, only shown to bots, was: ${privateQuestion}\n`;
+  }
 
   if (!answers.length) {
     return chatHistory;
@@ -63,9 +76,9 @@ export async function answerQuestion(
   const prompt = `
   ${getCharacterContext(character)}
 
-  ${getChatHistory(publicQuestion, answers)}
+  ${getChatHistory(publicQuestion, privateQuestion, answers)}
 
-  Answer the following question within 200 characters: ${publicQuestion} ${privateQuestion}
+  Answer the question in ${MAX_CHAT_LENGTH} characters.
   
   PLEASE make your answer unique from other answers as much as possible. Do not prepend your response with your name.`;
 
@@ -81,7 +94,8 @@ export async function answerQuestion(
 export async function voteOnHuman(
   character: Character,
   otherPlayers: Character[],
-  question: string,
+  publicQuestion: string,
+  privateQuestion: string,
   answers: Message[]
 ): Promise<{
   vote: Character;
@@ -92,7 +106,7 @@ export async function voteOnHuman(
 
   ${getCharacterRoster(otherPlayers)}
 
-  ${getChatHistory(question, answers)}
+  ${getChatHistory(publicQuestion, privateQuestion, answers)}
 
   Vote on who is most likely to be a human pretending to be a bot.
 
@@ -101,7 +115,7 @@ export async function voteOnHuman(
   Respond as a dictionary only in this format:
   {
     "vote": character's name (ex. Fred, Bob),
-    "reason": a reason for your vote, if any. keep within 200 characters.
+    "reason": a reason for your vote, if any. keep within ${MAX_CHAT_LENGTH} characters.
   }`;
 
   const response = await getCompletion(prompt);

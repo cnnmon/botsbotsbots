@@ -8,7 +8,6 @@ import PlayerList from '@/components/Desktop/PlayerList';
 import {
   CharacterName,
   CHARACTERS,
-  GAME_PLAYER_NAMES,
   SYSTEM_CHARACTER,
 } from '@/constants/characters';
 import { useEffect } from 'react';
