@@ -11,9 +11,10 @@ import {
   GAME_PLAYER_NAMES,
   SYSTEM_CHARACTER,
 } from '@/constants/characters';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { saveGameState } from '@/utils/storage';
 import { LEVELS, LevelStage } from '@/utils/levels';
+import { BsCheck } from 'react-icons/bs';
 
 export default function Desktop() {
   const {
@@ -29,7 +30,6 @@ export default function Desktop() {
 
   useEffect(() => {
     saveGameState(gameState);
-    console.log(gameState);
   }, [gameState]);
 
   useEffect(() => {
@@ -55,6 +55,16 @@ export default function Desktop() {
     defaultPosition: ControlPosition;
     isExitable?: boolean;
   }) {
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+      setIsVisible(gameState.windows.includes(name));
+    }, []);
+
+    if (!isVisible) {
+      return null;
+    }
+
     return (
       <Window
         name={name}
@@ -63,7 +73,6 @@ export default function Desktop() {
           width: `${width}`,
           height: `${height}`,
           zIndex: 1,
-          display: gameState.windows.includes(name) ? 'block' : 'none',
         }}
         defaultPosition={defaultPosition}
         content={content}
@@ -84,50 +93,44 @@ export default function Desktop() {
         </h2>
       </div>
 
-      {LEVELS.map((_, index: number) => {
-        if (gameState.level < index) {
-          return null;
-        }
-        return (
-          <>
-            <button
-              className="button p-2 bg-header-color fixed border-[1.5px] border-primary-color text-primary-color hover:bg-primary-color hover:text-white left-8"
-              style={{
-                top: `${32 + index * 8}vh`,
-                zIndex: 0,
-              }}
-              onClick={() => {
-                openWindow(`level-${index}`);
-                openWindow('players');
-              }}
-            >
-              level {index} {gameState.level > index && '✓'}
-            </button>
-            <WindowContainer
-              name={`level-${index}`}
-              width="550px"
-              height="70vh"
-              defaultPosition={{ x: -60, y: -40 }}
-              isExitable
-              content={
-                <Chat
-                  startTimestamp={gameState.startTimestamp}
-                  messages={gameState.history[index]}
-                  addMessage={sendMessage}
-                  openWindow={openWindow}
-                  stage={
-                    gameState.level === index
-                      ? gameState.stage
-                      : LevelStage.waiting
-                  }
-                  handleStartLevel={handleStartLevel}
-                  handleRestartGame={resetGame}
-                />
-              }
-            />
-          </>
-        );
-      })}
+      {LEVELS.map((_, index: number) => (
+        <div key={`level-${index}`}>
+          <button
+            className="button p-2 bg-header-color fixed border-[1.5px] border-primary-color text-primary-color hover:bg-primary-color hover:text-white left-8"
+            style={{
+              top: `${32 + index * 6}vh`,
+              zIndex: 0,
+            }}
+            onClick={() => {
+              openWindow(`level-${index}`);
+              openWindow('players');
+            }}
+          >
+            level-{index} {gameState.level > index && <BsCheck />}
+          </button>
+          <WindowContainer
+            name={`level-${index}`}
+            width="550px"
+            height="70vh"
+            defaultPosition={{ x: -80 + index * 60, y: -80 + index * 20 }}
+            isExitable
+            content={
+              <Chat
+                messages={gameState.history[index]}
+                addMessage={sendMessage}
+                openWindow={openWindow}
+                stage={
+                  gameState.level === index
+                    ? gameState.stage
+                    : LevelStage.waiting
+                }
+                handleStartLevel={handleStartLevel}
+                handleRestartGame={resetGame}
+              />
+            }
+          />
+        </div>
+      ))}
 
       <button
         className="button p-2 bg-header-color fixed bottom-8 right-4 border-[1.5px] border-primary-color text-primary-color hover:bg-primary-color hover:text-white"

@@ -1,5 +1,5 @@
 'use client';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Draggable, { ControlPosition } from 'react-draggable';
 import Image from 'next/image';
 import exitSvg from '@/public/exit.svg';
@@ -62,35 +62,6 @@ function TopBarContainer({
   );
 }
 
-function getWindowPosition(
-  windowStorageKey: string,
-  defaultPosition: ControlPosition
-): ControlPosition {
-  try {
-    const storedPosition = localStorage.getItem(windowStorageKey);
-    if (storedPosition) {
-      const { x, y } = JSON.parse(storedPosition);
-      return { x, y };
-    }
-  } catch (e) {
-    console.error(e);
-  }
-
-  return defaultPosition;
-}
-
-function setWindowPosition(
-  windowStorageKey: string,
-  position: ControlPosition
-) {
-  const { x, y } = position;
-  try {
-    localStorage.setItem(windowStorageKey, JSON.stringify({ x, y }));
-  } catch (e) {
-    console.error(e);
-  }
-}
-
 export default function Window({
   name,
   content,
@@ -104,9 +75,23 @@ export default function Window({
   defaultPosition: ControlPosition;
   exitProfile?: () => void;
 }) {
-  const windowStorageKey = `window-${name}`;
+  const [position, setPosition] = useState(defaultPosition);
+
+  const storageKey = `window-${name}`;
+
+  useEffect(() => {
+    const storedPosition = localStorage.getItem(storageKey);
+    if (storedPosition) {
+      const { x, y } = JSON.parse(storedPosition);
+      setPosition({ x, y });
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(position));
+  }, [position]);
+
   const nodeRef = useRef(null);
-  const position = getWindowPosition(windowStorageKey, defaultPosition);
 
   return (
     <Draggable
@@ -114,9 +99,7 @@ export default function Window({
       defaultPosition={position}
       onStop={(_, data) => {
         const { x, y } = data;
-        if (x && y) {
-          setWindowPosition(windowStorageKey, data);
-        }
+        setPosition({ x, y });
       }}
       nodeRef={nodeRef}
     >

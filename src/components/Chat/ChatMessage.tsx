@@ -19,7 +19,10 @@ export default function ChatMessage({
   if (!sender) {
     return (
       <div className={`flex justify-center ${!coalesce && 'mt-4'}`}>
-        <p className="whitespace-pre-wrap italic text-gray-color text-center px-4">
+        <p
+          className="whitespace-pre-wrap italic text-gray-color text-center px-4"
+          suppressHydrationWarning
+        >
           {content}
         </p>
       </div>
@@ -48,7 +51,7 @@ export default function ChatMessage({
             <p>
               {sender} {sentByYou && '(You)'}
             </p>
-            <p>{timestamp}</p>
+            <p suppressHydrationWarning>{timestamp}</p>
           </div>
         )}
         <p

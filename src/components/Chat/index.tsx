@@ -4,11 +4,9 @@ import ActionFooter from '@/components/Chat/ActionFooter';
 import { LevelStage } from '@/utils/levels';
 import { Message } from '@/utils/message';
 import { YOU_CHARACTER } from '@/constants/characters';
-import { SERVER_NAME } from '@/constants/misc';
 
 export default function Chat({
   stage,
-  startTimestamp,
   messages,
   addMessage,
   openWindow,
@@ -16,7 +14,6 @@ export default function Chat({
   handleRestartGame,
 }: {
   stage: LevelStage;
-  startTimestamp: string;
   messages: Message[];
   addMessage: (message: Message) => void;
   openWindow: (name: string) => void;
@@ -79,11 +76,6 @@ export default function Chat({
           }
         }}
       >
-        <p className="whitespace-pre-wrap italic text-gray-color text-center px-4">
-          ──• {SERVER_NAME} •──
-          <br />
-          {startTimestamp}
-        </p>
         {messages.map((message, index) => (
           <ChatMessage
             message={message}

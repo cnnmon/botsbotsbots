@@ -13,7 +13,6 @@ import { useReducer } from 'react';
 import { Message } from '@/utils/message';
 import { loadInitialGameState, scrollToBottom } from '@/utils/storage';
 import { Action, gameReducer } from '@/utils/state';
-import { wait } from '@/constants/misc';
 import { LevelStage } from '@/utils/levels';
 
 export default function useGameManager() {

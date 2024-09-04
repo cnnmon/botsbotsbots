@@ -9,6 +9,7 @@ import {
 } from '@/constants/characters';
 import { Message } from '@/utils/message';
 import { getBehavior, getQuestion } from '@/constants/questions';
+import { SERVER_NAME } from '@/constants/misc';
 
 export enum LevelStage {
   ack = 'acknowledge', // waiting for the player to ack the level
@@ -49,12 +50,10 @@ export const LEVELS = [
 ];
 
 export type GameState = {
-  startTimestamp: string;
-
   /* game state */
   alive: GamePlayerName[];
   eliminated: GamePlayerName[];
-  history: Message[][]; // [level][message]
+  history: { [key: number]: Message[] }; // [levelNumber]: messages
 
   /* variables */
   stage: LevelStage;
@@ -70,6 +69,12 @@ export type GameState = {
 
 export const getInitialLevelMessages = (levelNumber: number): Message[] => {
   return [
+    new Message({
+      content: `──• ${SERVER_NAME} •──`,
+    }),
+    new Message({
+      content: new Date().toLocaleTimeString(),
+    }),
     new Message({
       content: `Acknowledge to proceed with level ${levelNumber}.`,
       sender: SYSTEM_CHARACTER,
@@ -87,10 +92,12 @@ export const loadLevel = (
 
   /* save some old game state variables */
   if (levelNumber === 0 || !gameState) {
-    state.startTimestamp = new Date().toLocaleTimeString();
     state.alive = Object.keys(GAME_PLAYERS) as GamePlayerName[];
     state.eliminated = [];
-    state.history = [...Array(LEVELS.length)].map(() => []);
+    state.history = LEVELS.reduce((acc, _, i) => {
+      acc[i] = getInitialLevelMessages(i);
+      return acc;
+    }, {} as { [key: number]: Message[] });
     state.windows = [];
     state.level = 0;
   }

@@ -3,7 +3,7 @@
  */
 
 import { Message } from '@/utils/message';
-import { GameState, getInitialLevelMessages, LevelStage } from '@/utils/levels';
+import { GameState, LevelStage } from '@/utils/levels';
 import {
   GamePlayerName,
   SYSTEM_CHARACTER,
@@ -50,8 +50,6 @@ type ActionType =
     };
 
 const handleSendMessage = (state: GameState, message: Message): GameState => {
-  const newMessages: Message[] = [message];
-
   if (message.sender !== SYSTEM_CHARACTER) {
     if (state.stage === LevelStage.answer) {
       // add the answer to the list of answers if the user has not answered yet
@@ -78,61 +76,47 @@ const handleSendMessage = (state: GameState, message: Message): GameState => {
     state.stage = LevelStage.results;
   }
 
-  return {
-    ...state,
-    history: [
-      ...state.history.slice(0, state.level),
-      state.history[state.level].concat(newMessages),
-    ],
-  };
+  state.history[state.level].push(message);
+  return state;
 };
 
 const handleEndLevel = (
   state: GameState,
   mostVotedPlayerName: GamePlayerName
 ) => {
-  const newMessages: Message[] = [];
-  let newLevel = state.level;
+  state.eliminated = [...state.eliminated, mostVotedPlayerName];
+  state.alive = [
+    ...state.alive.filter((player) => player !== mostVotedPlayerName),
+  ];
 
   if (mostVotedPlayerName === YOU_CHARACTER) {
     // you lose!
     state.stage = LevelStage.lose;
-    newMessages.push(
+    state.history[state.level].push(
       new Message({
         sender: SYSTEM_CHARACTER,
-        content: 'You have been eliminated.',
+        content: `You have been eliminated. Game over.`,
       })
     );
   } else {
     // you move on to the next level!
     state.stage = LevelStage.win;
-    newLevel++;
-    newMessages.push(
+    state.history[state.level].push(
       new Message({
         sender: SYSTEM_CHARACTER,
         content: `${mostVotedPlayerName} has been eliminated, but to maintain system integrity, we must continue. Advance to the next level to proceed.`,
       })
     );
+    state.level += 1;
+    state.history[state.level + 1].push(
+      new Message({
+        content: `This is a work in progress. Building out new levels and harder difficulties soon!`,
+        sender: SYSTEM_CHARACTER,
+      })
+    );
   }
 
-  console.log(state.history[state.level], newMessages);
-
-  return {
-    ...state,
-    level: newLevel,
-    eliminated: [...state.eliminated, mostVotedPlayerName],
-    alive: [...state.alive.filter((player) => player !== mostVotedPlayerName)],
-    history: [
-      ...state.history.slice(0, state.level),
-      state.history[state.level].concat(newMessages), // end current level messages
-      [
-        new Message({
-          content: `This is a work in progress. Building out new levels and harder difficulties soon!`,
-          sender: SYSTEM_CHARACTER,
-        }),
-      ], // unlock new level
-    ],
-  };
+  return state;
 };
 
 export const gameReducer = (

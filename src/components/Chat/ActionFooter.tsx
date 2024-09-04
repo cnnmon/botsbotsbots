@@ -55,5 +55,13 @@ export default function ActionFooter({
     );
   }
 
+  if (stage === LevelStage.waiting) {
+    return (
+      <div className="flex justify-center items-center h-16">
+        <p className="text-primary-color">you are waiting...</p>
+      </div>
+    );
+  }
+
   return null;
 }
