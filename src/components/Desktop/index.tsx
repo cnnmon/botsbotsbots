@@ -177,14 +177,19 @@ export default function Desktop() {
         isExitable
         content={
           <div className="bg-primary-color h-full text-white p-4 flex flex-col justify-center items-center">
-            Made with Blender, Next.js, and fish and chips.
-            <a
-              href="https://github.com/cnnmon/botsbotsbots"
-              className="underline"
-              target="_blank"
-            >
-              github.com/cnnmon/botsbotsbots
-            </a>
+            <p className="w-3/4 text-center">
+              {' '}
+              made with typescript, blender, and fish and chips. this is a happy
+              work in progress by{' '}
+              <a
+                href="https://www.tiffanywang.me/"
+                target="_blank"
+                className="underline"
+              >
+                tiffany
+              </a>
+              . suggest some levels!
+            </p>
             <button
               className="button mt-2 text-white hover:bg-white hover:text-primary-color w-1/2"
               onClick={resetGame}
