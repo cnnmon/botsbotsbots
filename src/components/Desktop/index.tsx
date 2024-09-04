@@ -86,7 +86,7 @@ export default function Desktop() {
           <br />
           every round, the most human-like player is eliminated.
           <br />
-          last {GAME_PLAYER_NAMES.length} rounds to win.
+          last {LEVELS.length} rounds to win.
         </h2>
       </div>
 

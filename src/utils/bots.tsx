@@ -56,15 +56,16 @@ function getCharacterRoster(players: Character[]): string {
 
 export async function answerQuestion(
   character: Character,
-  question: string,
+  publicQuestion: string,
+  privateQuestion: string,
   answers: Message[]
 ): Promise<string | null> {
   const prompt = `
   ${getCharacterContext(character)}
 
-  ${getChatHistory(question, answers)}
+  ${getChatHistory(publicQuestion, answers)}
 
-  Answer the following question within 200 characters: ${question}
+  Answer the following question within 200 characters: ${publicQuestion} ${privateQuestion}
   
   PLEASE make your answer unique from other answers as much as possible. Do not prepend your response with your name.`;
 

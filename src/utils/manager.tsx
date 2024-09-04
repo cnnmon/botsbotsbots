@@ -13,7 +13,13 @@ import { useReducer } from 'react';
 import { Message } from '@/utils/message';
 import { scrollToBottom } from '@/utils/storage';
 import { Action, gameReducer } from '@/utils/state';
-import { GameState, LevelStage, loadLevel } from '@/utils/levels';
+import {
+  GameElement,
+  GameState,
+  LEVELS,
+  LevelStage,
+  loadLevel,
+} from '@/utils/levels';
 
 export default function useGameManager() {
   const [gameState, dispatch] = useReducer(gameReducer, loadLevel(0));
@@ -75,12 +81,40 @@ export default function useGameManager() {
 
     // ask a question
     setStage(LevelStage.answer);
-    sendMessage(
-      new Message({
-        sender: SYSTEM_CHARACTER,
-        content: `Please answer the following question: ${gameState.publicQuestion}`,
-      })
-    );
+    const currentLevel = LEVELS[gameState.level];
+    const randomChars = ['⣿', '▇', '▓', '▒', '░', '█', '▄', '▁', ' '];
+    const censoredText: string = Array.from({
+      length: 8 + Math.floor(Math.random() * 8),
+    })
+      .map(() => randomChars[Math.floor(Math.random() * randomChars.length)])
+      .join('');
+
+    if (currentLevel.public.includes(GameElement.question)) {
+      sendMessage(
+        new Message({
+          sender: SYSTEM_CHARACTER,
+          content: `Please answer the following question: ${gameState.publicQuestion}`,
+        })
+      );
+    }
+
+    if (currentLevel.private.includes(GameElement.question)) {
+      sendMessage(
+        new Message({
+          sender: SYSTEM_CHARACTER,
+          content: `The following question is written only in a language bots can understand: ${censoredText}`,
+        })
+      );
+    }
+
+    if (currentLevel.private.includes(GameElement.behavior)) {
+      sendMessage(
+        new Message({
+          sender: SYSTEM_CHARACTER,
+          content: `There is also an extra instruction written only in a language bots can understand: ${censoredText}`,
+        })
+      );
+    }
 
     // start answering the question
     for (let i = 0; i < gameState.alive.length; i++) {
@@ -92,6 +126,7 @@ export default function useGameManager() {
       const response = await answerQuestion(
         CHARACTERS[playerName],
         gameState.publicQuestion,
+        gameState.privateQuestion,
         gameState.answers
       );
 

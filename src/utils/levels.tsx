@@ -21,7 +21,7 @@ export enum LevelStage {
   lose = 'lose',
 }
 
-enum GameElement {
+export enum GameElement {
   question = 'question',
   behavior = 'behavior',
 }
@@ -34,13 +34,13 @@ export const LEVELS = [
   },
   {
     // level 1
-    public: [],
-    private: [GameElement.question],
+    public: [GameElement.question],
+    private: [GameElement.behavior],
   },
   {
     // level 2
-    public: [GameElement.question],
-    private: [GameElement.behavior],
+    public: [],
+    private: [GameElement.question],
   },
   {
     // level 3
