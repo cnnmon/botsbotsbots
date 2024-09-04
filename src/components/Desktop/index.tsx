@@ -188,13 +188,21 @@ export default function Desktop() {
               >
                 Tiffany
               </a>
-              . Suggest some levels!
+              . I take suggestions!
+              <br />
+              <a
+                href="https://github.com/cnnmon/botsbotsbots"
+                target="_blank"
+                className="underline"
+              >
+                github.com/cnnmon/botsbotsbots
+              </a>
             </p>
             <button
-              className="button mt-2 text-white hover:bg-white hover:text-primary-color w-1/2"
+              className="button mt-2 text-white hover:bg-white hover:text-primary-color w-1/2 border-[1.5px] border-white"
               onClick={resetGame}
             >
-              Reset
+              Reset Game
             </button>
           </div>
         }

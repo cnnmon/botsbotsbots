@@ -92,3 +92,8 @@ h2 {
   border: 1.5px solid var(--primary-color);
   cursor: grab;
 }
+
+a:hover {
+  color: var(--primary-color);
+  background-color: var(--header-color)
+}
