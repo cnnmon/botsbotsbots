@@ -3,7 +3,7 @@
  */
 
 import { Message } from '@/utils/message';
-import { GameState, LevelStage } from '@/utils/levels';
+import { GameState, LEVELS, LevelStage, loadLevel } from '@/utils/levels';
 import {
   GamePlayerName,
   SYSTEM_CHARACTER,
@@ -16,6 +16,7 @@ export enum Action {
   EXIT_WINDOW = 'EXIT_WINDOW',
   SEND_MESSAGE = 'SEND_MESSAGE',
   RESET_GAME = 'RESET_GAME',
+  RESTART_LEVEL = 'RESTART_LEVEL',
   SET_WAITING = 'SET_WAITING',
   SET_GAME_STATE = 'SET_GAME_STATE',
   SET_STAGE = 'SET_STAGE',
@@ -38,6 +39,9 @@ type ActionType =
     }
   | {
       type: Action.RESET_GAME;
+    }
+  | {
+      type: Action.RESTART_LEVEL;
     }
   | {
       type: Action.SET_WAITING;
@@ -132,18 +136,35 @@ const handleEndLevel = (
           ...state.history[state.level],
           new Message({
             sender: SYSTEM_CHARACTER,
-            content: `You have been eliminated. Game over.`,
+            content: `You have been eliminated.`,
           }),
         ],
       },
     };
   }
 
-  // you move on to the next level!
-  return {
+  // you move on to the next level! (if there is one?)
+  if (state.level === LEVELS.length - 1) {
+    return {
+      ...state,
+      stage: LevelStage.win,
+      eliminated,
+      alive,
+      history: {
+        ...state.history,
+        [state.level]: [
+          ...state.history[state.level],
+          new Message({
+            sender: SYSTEM_CHARACTER,
+            content: `You have won! There are no more levels to play.`,
+          }),
+        ],
+      },
+    };
+  }
+
+  const newState = {
     ...state,
-    stage: LevelStage.win,
-    level: state.level + 1,
     eliminated,
     alive,
     history: {
@@ -157,6 +178,8 @@ const handleEndLevel = (
       ],
     },
   };
+
+  return loadLevel(state.level + 1, newState);
 };
 
 export const gameReducer = (
@@ -178,6 +201,8 @@ export const gameReducer = (
       return handleSendMessage(state, action.payload);
     case Action.RESET_GAME:
       return resetGameState();
+    case Action.RESTART_LEVEL:
+      return loadLevel(state.level, state);
     case Action.SET_GAME_STATE:
       return action.payload;
     case Action.SET_STAGE:

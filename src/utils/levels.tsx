@@ -87,7 +87,6 @@ export const loadLevel = (
   gameState?: GameState
 ): GameState => {
   const initialMessages: Message[] = getInitialLevelMessages(levelNumber);
-
   const state = gameState || ({} as GameState);
 
   /* save some old game state variables */
@@ -106,6 +105,7 @@ export const loadLevel = (
   state.stage = LevelStage.ack;
   state.votes = [];
   state.answers = [];
+  state.level = levelNumber;
 
   /* look up level and generate questions/behaviors */
   const level = LEVELS[levelNumber];
@@ -126,6 +126,11 @@ export const loadLevel = (
     ...state,
     publicQuestion,
     privateQuestion,
+    /* always save YOU_PLAYER from elimination on reset if it's not already */
+    alive: state.alive.includes(YOU_CHARACTER)
+      ? state.alive
+      : [...state.alive, YOU_CHARACTER],
+    eliminated: state.eliminated.filter((name) => name !== YOU_CHARACTER),
   };
 };
 

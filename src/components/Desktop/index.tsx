@@ -23,15 +23,16 @@ export default function Desktop() {
     openWindow,
     exitWindow,
     sendMessage,
+    restartLevel,
     resetGame,
     handleStartLevel,
     handleStartVoting,
     handleEndLevel,
   } = useGameManager();
+  console.log(gameState);
 
   useEffect(() => {
     const savedGameState = loadGameState();
-    console.log(savedGameState);
     if (savedGameState) {
       setGameState(savedGameState);
     }
@@ -132,12 +133,10 @@ export default function Desktop() {
                 addMessage={sendMessage}
                 openWindow={openWindow}
                 stage={
-                  gameState.level === index
-                    ? gameState.stage
-                    : LevelStage.waiting
+                  gameState.level === index ? gameState.stage : LevelStage.win
                 }
                 handleStartLevel={handleStartLevel}
-                handleRestartGame={resetGame}
+                handleRestartLevel={restartLevel}
               />
             }
           />

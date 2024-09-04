@@ -11,7 +11,7 @@ import {
 } from '@/constants/characters';
 import { useReducer } from 'react';
 import { Message } from '@/utils/message';
-import { saveGameState, scrollToBottom } from '@/utils/storage';
+import { scrollToBottom } from '@/utils/storage';
 import { Action, gameReducer } from '@/utils/state';
 import { GameState, LevelStage, loadLevel } from '@/utils/levels';
 
@@ -46,6 +46,10 @@ export default function useGameManager() {
 
   const resetGame = () => {
     dispatch({ type: Action.RESET_GAME });
+  };
+
+  const restartLevel = () => {
+    dispatch({ type: Action.RESTART_LEVEL });
   };
 
   const endLevel = (mostVotedPlayerName: GamePlayerName | null) => {
@@ -225,5 +229,6 @@ export default function useGameManager() {
     handleEndLevel,
     sendMessage,
     resetGame,
+    restartLevel,
   };
 }

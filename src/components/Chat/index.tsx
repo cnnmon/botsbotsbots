@@ -11,14 +11,14 @@ export default function Chat({
   addMessage,
   openWindow,
   handleStartLevel,
-  handleRestartGame,
+  handleRestartLevel,
 }: {
   stage: LevelStage;
   messages: Message[];
   addMessage: (message: Message) => void;
   openWindow: (name: string) => void;
   handleStartLevel: () => void;
-  handleRestartGame: () => void;
+  handleRestartLevel: () => void;
 }) {
   const [chatboxText, setChatboxText] = useState('');
   const chatScrollRef = useRef<HTMLDivElement>(null);
@@ -90,7 +90,7 @@ export default function Chat({
       <ActionFooter
         stage={stage}
         handleStartLevel={handleStartLevel}
-        handleRestartGame={handleRestartGame}
+        handleRestartLevel={handleRestartLevel}
         chatboxText={chatboxText}
         setChatboxText={setChatboxText}
         sendMessage={sendMessage}

@@ -4,7 +4,7 @@ import { LevelStage } from '@/utils/levels';
 export default function ActionFooter({
   stage,
   handleStartLevel,
-  handleRestartGame,
+  handleRestartLevel,
   chatboxText,
   setChatboxText,
   sendMessage,
@@ -12,7 +12,7 @@ export default function ActionFooter({
 }: {
   stage: LevelStage;
   handleStartLevel: () => void;
-  handleRestartGame: () => void;
+  handleRestartLevel: () => void;
   chatboxText: string;
   setChatboxText: (text: string) => void;
   sendMessage: () => void;
@@ -47,7 +47,7 @@ export default function ActionFooter({
       <div className="flex justify-center items-center h-16">
         <button
           className="button border-[1.5px] border-primary-color p-2 w-1/2 text-primary-color hover:bg-white hover:text-primary-color bg-primary-color text-white"
-          onClick={handleRestartGame}
+          onClick={handleRestartLevel}
         >
           Try again
         </button>
@@ -59,6 +59,14 @@ export default function ActionFooter({
     return (
       <div className="flex justify-center items-center h-16">
         <p className="text-primary-color">you are waiting...</p>
+      </div>
+    );
+  }
+
+  if (stage === LevelStage.win) {
+    return (
+      <div className="flex justify-center items-center h-16">
+        <p className="text-primary-color">you won this level!</p>
       </div>
     );
   }
