@@ -56,7 +56,7 @@ export default function Profile({
       <div className="text-left my-4 w-full border-t-[1.5px] border-primary-color">
         <h1 className="line-clamp-1">{name}</h1>
         <h2 className="mt-[-10px]">{bio}</h2>
-        <p className="text-gray-color">Joined: {est.toString()}</p>
+        <p className="text-gray-color">Joined: {est.toLocaleDateString()}</p>
         <Status character={character} isAlive={isAlive} />
       </div>
     </div>
