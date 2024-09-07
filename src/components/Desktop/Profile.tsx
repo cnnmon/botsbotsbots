@@ -38,16 +38,19 @@ export default function Profile({
   isAlive?: boolean;
 }) {
   const { name, bio, images, est } = character;
+  const sentBySystem = name === SYSTEM_CHARACTER;
   return (
     <div
-      className="p-4 flex items-center flex-col overflow-y-auto"
+      className={`p-4 flex items-center flex-col overflow-y-auto`}
       style={{
         height: 'calc(100% - 30px)',
       }}
     >
       <Image
         alt={`${name}'s headshot`}
-        className="no-drag w-[100%]"
+        className={`no-drag w-[100%]  ${
+          sentBySystem ? 'bg-[#574b44]' : 'bg-[#8a654c]'
+        }`}
         src={images.gif}
       />
       <div className="text-left my-4 w-full border-t-[1.5px] border-primary-color">
