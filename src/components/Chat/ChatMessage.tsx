@@ -34,7 +34,11 @@ export default function ChatMessage({
   const { images } = CHARACTERS[sender];
   return (
     <div className={`flex items-start ${coalesce ? 'mt-1' : 'mt-4'}`}>
-      <div className="mr-2 w-20">
+      <div
+        className={`mr-2 w-20 ${
+          sentBySystem ? 'bg-[#574b44]' : 'bg-[#8a654c]'
+        }`}
+      >
         {!coalesce && (
           <Image
             src={images.png}

@@ -5,8 +5,11 @@
 import { StaticImageData } from 'next/image';
 import fredPng from '@/public/profiles/fred.png';
 import fredGif from '@/public/profiles/fred.gif';
-import fredPixel from '@/public/profiles/fred-pixel.png';
-import shadow from '@/public/profiles/shadow.png';
+import alicePng from '@/public/profiles/alice.png';
+import bobPng from '@/public/profiles/bob.png';
+import charlesPng from '@/public/profiles/charles.png';
+import evePng from '@/public/profiles/eve.png';
+import sysAdminPng from '@/public/profiles/sysadmin.png';
 
 export const YOU_CHARACTER = 'Fred';
 export const SYSTEM_CHARACTER = 'System';
@@ -14,7 +17,6 @@ export const SYSTEM_CHARACTER = 'System';
 type ImageInfo = {
   png: StaticImageData;
   gif: StaticImageData;
-  pixel: StaticImageData;
 };
 
 export enum CharacterStatus {
@@ -59,9 +61,8 @@ export const GAME_PLAYERS: Record<GamePlayerName, Character> = {
   Alice: new Character({
     name: 'Alice',
     images: {
-      png: fredPng,
-      gif: fredPng,
-      pixel: fredPng,
+      png: alicePng,
+      gif: alicePng,
     },
     bio: 'telemarketer bot',
     est: new Date('2032-8-13 00:00:00'),
@@ -69,9 +70,8 @@ export const GAME_PLAYERS: Record<GamePlayerName, Character> = {
   Bob: new Character({
     name: 'Bob',
     images: {
-      png: fredPng,
-      gif: fredPng,
-      pixel: fredPng,
+      png: bobPng,
+      gif: bobPng,
     },
     bio: 'customer service bot',
     est: new Date('2025-11-15 00:00:00'),
@@ -79,9 +79,8 @@ export const GAME_PLAYERS: Record<GamePlayerName, Character> = {
   Charles: new Character({
     name: 'Charles',
     images: {
-      png: fredPng,
-      gif: fredPng,
-      pixel: fredPng,
+      png: charlesPng,
+      gif: charlesPng,
     },
     bio: 'hr bot',
     est: new Date('2027-2-17 00:00:00'),
@@ -89,9 +88,8 @@ export const GAME_PLAYERS: Record<GamePlayerName, Character> = {
   Eve: new Character({
     name: 'Eve',
     images: {
-      png: fredPng,
-      gif: fredPng,
-      pixel: fredPng,
+      png: evePng,
+      gif: evePng,
     },
     bio: 'accountant bot',
     est: new Date('2028-4-21'),
@@ -101,7 +99,6 @@ export const GAME_PLAYERS: Record<GamePlayerName, Character> = {
     images: {
       png: fredPng,
       gif: fredGif,
-      pixel: fredPixel,
     },
     bio: 'department coordinator',
     est: new Date('2040-07-09 00:00:00'),
@@ -112,9 +109,8 @@ export const CHARACTERS: Record<CharacterName, Character> = {
   [SYSTEM_CHARACTER]: new Character({
     name: SYSTEM_CHARACTER,
     images: {
-      png: shadow,
-      gif: shadow,
-      pixel: shadow,
+      png: sysAdminPng,
+      gif: sysAdminPng,
     },
     bio: 'System Snitch',
     est: new Date('9-9-9999'),
