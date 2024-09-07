@@ -160,7 +160,7 @@ const handleEndLevel = (
           ...state.history[state.level],
           new Message({
             sender: SYSTEM_CHARACTER,
-            content: `You have won! There are no more levels to play.`,
+            content: `After ${state.level} rounds, our protocol has surely eliminated the human. Congratulations, bots. Back to work!`,
           }),
         ],
       },
