@@ -3,18 +3,12 @@
  */
 
 import { StaticImageData } from 'next/image';
-import fredCropped from '@/public/profiles/fred-cropped.png';
 import fred from '@/public/profiles/fred.png';
-import aliceCropped from '@/public/profiles/alice-cropped.png';
 import alice from '@/public/profiles/alice.png';
-import bobCropped from '@/public/profiles/bob-cropped.png';
 import bob from '@/public/profiles/bob.png';
-import charlesCropped from '@/public/profiles/charles-cropped.png';
 import charles from '@/public/profiles/charles.png';
-import eveCropped from '@/public/profiles/eve-cropped.png';
 import eve from '@/public/profiles/eve.png';
-import sysCropped from '@/public/profiles/sysadmin-cropped.png';
-import sys from '@/public/profiles/sysadmin.png';
+import system from '@/public/profiles/system.png';
 
 export const YOU_CHARACTER = 'Fred';
 export const SYSTEM_CHARACTER = 'System';
@@ -66,7 +60,7 @@ export const GAME_PLAYERS: Record<GamePlayerName, Character> = {
   Alice: new Character({
     name: 'Alice',
     images: {
-      cropped: aliceCropped,
+      cropped: alice,
       full: alice,
     },
     bio: 'telemarketer bot',
@@ -75,7 +69,7 @@ export const GAME_PLAYERS: Record<GamePlayerName, Character> = {
   Bob: new Character({
     name: 'Bob',
     images: {
-      cropped: bobCropped,
+      cropped: bob,
       full: bob,
     },
     bio: 'customer service bot',
@@ -84,7 +78,7 @@ export const GAME_PLAYERS: Record<GamePlayerName, Character> = {
   Charles: new Character({
     name: 'Charles',
     images: {
-      cropped: charlesCropped,
+      cropped: charles,
       full: charles,
     },
     bio: 'hr bot',
@@ -93,7 +87,7 @@ export const GAME_PLAYERS: Record<GamePlayerName, Character> = {
   Eve: new Character({
     name: 'Eve',
     images: {
-      cropped: eveCropped,
+      cropped: eve,
       full: eve,
     },
     bio: 'accountant bot',
@@ -102,7 +96,7 @@ export const GAME_PLAYERS: Record<GamePlayerName, Character> = {
   [YOU_CHARACTER]: new Character({
     name: YOU_CHARACTER,
     images: {
-      cropped: fredCropped,
+      cropped: fred,
       full: fred,
     },
     bio: 'department coordinator',
@@ -114,8 +108,8 @@ export const CHARACTERS: Record<CharacterName, Character> = {
   [SYSTEM_CHARACTER]: new Character({
     name: SYSTEM_CHARACTER,
     images: {
-      cropped: sysCropped,
-      full: sys,
+      cropped: system,
+      full: system,
     },
     bio: 'System Snitch',
     est: new Date('9-9-9999'),

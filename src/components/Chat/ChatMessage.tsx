@@ -35,9 +35,9 @@ export default function ChatMessage({
   return (
     <div className={`flex items-start ${coalesce ? 'mt-1' : 'mt-4'}`}>
       <div
-        className={`mr-2 w-20 ${
+        className={`mr-2 w-24 ${
           sentBySystem ? 'bg-[#574b44]' : 'bg-[#8a654c]'
-        }`}
+        } border-primary-color border-[1.5px]`}
       >
         {!coalesce && (
           <Image
