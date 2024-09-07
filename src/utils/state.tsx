@@ -69,7 +69,10 @@ const handleSendMessage = (state: GameState, message: Message): GameState => {
       if (!state.answers.find((msg) => msg.sender === message.sender)) {
         state.answers.push(message);
       }
-    } else if (message.metadata && message.sender !== YOU_CHARACTER) {
+    } else if (
+      state.stage === LevelStage.waiting &&
+      message.sender !== YOU_CHARACTER
+    ) {
       // add the vote to the list of votes if the user has not voted yet
       if (!state.votes.find((msg) => msg.sender === message.sender)) {
         state.votes.push(message);
