@@ -24,6 +24,7 @@ import {
   LevelStage,
   loadLevel,
 } from '@/utils/levels';
+import { wait } from '@/constants/misc';
 
 export enum Action {
   SEND_MESSAGE = 'SEND_MESSAGE',
@@ -364,6 +365,8 @@ export default function useGameManager() {
         continue;
       }
 
+      await wait(10000);
+
       const response = await voteOnHuman(
         CHARACTERS[playerName],
         gameState.alive
@@ -399,7 +402,7 @@ export default function useGameManager() {
     commit();
   };
 
-  const handleEndLevel = () => {
+  const handleEndLevel = async () => {
     // tally votes
     const voteCounts = {} as Record<string, number>;
     let maxVote = 0;
@@ -412,6 +415,8 @@ export default function useGameManager() {
       if (!vote.metadata) {
         continue;
       }
+
+      await wait(10000);
 
       const name = vote.metadata.vote.name;
       voteCounts[name] = (voteCounts[name] || 0) + 1;
@@ -436,7 +441,7 @@ export default function useGameManager() {
         votedPlayer = null;
       } else {
         // you lost...
-        voteMessage = 'Oh no';
+        voteMessage = 'Ah fuck';
       }
     }
 

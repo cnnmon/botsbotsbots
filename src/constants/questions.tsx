@@ -16,7 +16,7 @@ const questions = [
   'Design a language that only works in complete silence. What would its rules and structure be?',
   'What crimes would you commit if you could rewrite physics for one hour?',
   'Create a holiday that celebrates indecision. What are the traditions, and how do people observe it?',
-  'You’ve been hired to write bedtime stories for aliens who don’t sleep. What kind of stories would you write?',
+  'You have been hired to write bedtime stories for aliens who do not sleep. What kind of stories would you write?',
 ];
 
 const behaviors = [
