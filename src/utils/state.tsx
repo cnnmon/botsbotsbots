@@ -187,16 +187,6 @@ export const gameReducer = (
   action: ActionType
 ): GameState => {
   switch (action.type) {
-    case Action.OPEN_WINDOW:
-      return {
-        ...state,
-        windows: [...state.windows, action.payload],
-      };
-    case Action.EXIT_WINDOW:
-      return {
-        ...state,
-        windows: state.windows.filter((window) => window !== action.payload),
-      };
     case Action.SEND_MESSAGE:
       return handleSendMessage(state, action.payload);
     case Action.RESET_GAME:

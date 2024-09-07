@@ -26,8 +26,6 @@ import {
 } from '@/utils/levels';
 
 export enum Action {
-  OPEN_WINDOW = 'OPEN_WINDOW',
-  EXIT_WINDOW = 'EXIT_WINDOW',
   SEND_MESSAGE = 'SEND_MESSAGE',
   RESET_GAME = 'RESET_GAME',
   RESTART_LEVEL = 'RESTART_LEVEL',
@@ -39,14 +37,6 @@ export enum Action {
 }
 
 type ActionType =
-  | {
-      type: Action.OPEN_WINDOW;
-      payload: string;
-    }
-  | {
-      type: Action.EXIT_WINDOW;
-      payload: string;
-    }
   | {
       type: Action.SEND_MESSAGE;
       payload: Message;
@@ -201,16 +191,6 @@ export const gameReducer = (
   action: ActionType
 ): GameState => {
   switch (action.type) {
-    case Action.OPEN_WINDOW:
-      return {
-        ...state,
-        windows: [...state.windows, action.payload],
-      };
-    case Action.EXIT_WINDOW:
-      return {
-        ...state,
-        windows: state.windows.filter((window) => window !== action.payload),
-      };
     case Action.SEND_MESSAGE:
       return handleSendMessage(state, action.payload);
     case Action.RESET_GAME:
@@ -254,16 +234,6 @@ export default function useGameManager() {
 
   const setGameState = (newState: GameState) => {
     dispatch({ type: Action.SET_GAME_STATE, payload: newState });
-  };
-
-  const openWindow = (name: string) => {
-    if (!gameState.windows.includes(name)) {
-      dispatch({ type: Action.OPEN_WINDOW, payload: name });
-    }
-  };
-
-  const exitWindow = (name: string) => {
-    dispatch({ type: Action.EXIT_WINDOW, payload: name });
   };
 
   const sendMessage = (message: Message) => {
@@ -459,7 +429,7 @@ export default function useGameManager() {
     sendMessage(
       new Message({
         sender: YOU_CHARACTER,
-        content: `I vote for ${votedPlayerThatIsNotYou}.`,
+        content: 'ah fuck', //`I vote for ${votedPlayerThatIsNotYou}.`,
         metadata: {
           vote: CHARACTERS[votedPlayerThatIsNotYou],
         },
@@ -486,8 +456,6 @@ export default function useGameManager() {
   return {
     gameState,
     setGameState,
-    openWindow,
-    exitWindow,
     handleStartLevel,
     handleStartVoting,
     handleEndLevel,

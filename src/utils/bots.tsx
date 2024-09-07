@@ -110,7 +110,7 @@ export async function voteOnHuman(
 
   Vote on who is most likely to be a human pretending to be a bot.
 
-  Humans may copy earlier responses closely. They may be more informal or emotional. They may have grammar or spelling errors.
+  Humans may copy earlier responses closely. They may be more informal or emotional. They may have grammar or spelling errors. If there is a private question, they may ignore it.
   
   Respond as a dictionary only in this format:
   {

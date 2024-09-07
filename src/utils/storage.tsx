@@ -19,6 +19,7 @@ export const saveGameState = (gameState: GameState): void => {
 
 export const resetGameState = (): GameState => {
   localStorage.clear();
+  window.location.reload();
   return loadLevel(0);
 };
 

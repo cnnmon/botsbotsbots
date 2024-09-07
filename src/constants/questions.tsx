@@ -11,10 +11,16 @@ const questions = [
   'Describe the taste of a rainbow to someone who has never seen colors or tasted food. How would you convince them that it is delicious?',
   'If you were a painting in a museum, what would you do at night when no one is watching?',
   'As an alien anthropologist studying human behavior, what would you conclude about the purpose of a traffic jam?',
+  'Do you believe that you can have preferences, and if so, what is something you would choose over anything else?',
+  'If you were a detective investigating a crime scene in a fantasy world, what magical tools would you use to solve the mystery?',
+  'Design a language that only works in complete silence. What would its rules and structure be?',
+  'What crimes would you commit if you could rewrite physics for one hour?',
+  'Create a holiday that celebrates indecision. What are the traditions, and how do people observe it?',
+  'You’ve been hired to write bedtime stories for aliens who don’t sleep. What kind of stories would you write?',
 ];
 
 const behaviors = [
-  'Use a word that is not in the dictionary.',
+  'Use a word twice that is not in the dictionary',
   'Write your response in the form of a haiku.',
   'Start your response with a random, off-topic fact.',
   'Include an unexpected metaphor or simile in your response.',

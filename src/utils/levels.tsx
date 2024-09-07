@@ -66,7 +66,6 @@ export type GameState = {
   /* cache */
   answers: Message[];
   votes: Message[];
-  windows: string[];
 };
 
 export const getInitialLevelMessages = (levelNumber: number): Message[] => {
@@ -99,7 +98,6 @@ export const loadLevel = (
       acc[i] = getInitialLevelMessages(i);
       return acc;
     }, {} as { [key: number]: Message[] });
-    state.windows = [];
     state.level = 0;
   }
 
