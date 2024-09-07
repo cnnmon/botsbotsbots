@@ -82,14 +82,14 @@ export default function Desktop() {
           {gameState.level >= index && (
             <Icon
               name={
-                <>
+                <div className="flex items-center justify-center w-full">
                   level-{index}{' '}
                   {(gameState.level > index ||
                     gameState.stage === LevelStage.win) && <BsCheck />}
-                </>
+                </div>
               }
               symbol={warning}
-              position={{ left: 150 + index * 8, top: 250 + index * 6 }}
+              position={{ left: 150, top: 250 + index * 120 }}
               onClick={() => {
                 openWindows(['players', `level-${index}`]);
               }}

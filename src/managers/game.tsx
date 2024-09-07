@@ -426,16 +426,7 @@ export default function useGameManager() {
     }
 
     // send your "vote" automatically, which is either the most voted player (eliminating them) or the second most voted player
-    sendMessage(
-      new Message({
-        sender: YOU_CHARACTER,
-        content: 'ah fuck', //`I vote for ${votedPlayerThatIsNotYou}.`,
-        metadata: {
-          vote: CHARACTERS[votedPlayerThatIsNotYou],
-        },
-      })
-    );
-
+    let voteMessage = `I vote for ${votedPlayerThatIsNotYou}.`;
     if (votedPlayer === YOU_CHARACTER) {
       if (voteCounts[votedPlayerThatIsNotYou] + 1 > maxVote) {
         // your vote swayed the decision!
@@ -443,12 +434,22 @@ export default function useGameManager() {
       } else if (voteCounts[votedPlayerThatIsNotYou] + 1 == maxVote) {
         // there is a tie
         votedPlayer = null;
+      } else {
+        // you lost...
+        voteMessage = 'Oh no';
       }
     }
 
+    // send your "vote"
+    sendMessage(
+      new Message({
+        sender: YOU_CHARACTER,
+        content: voteMessage,
+      })
+    );
+
     // eliminate the player with the most votes
     endLevel(votedPlayer);
-
     // save once all generations are in
     commit();
   };
