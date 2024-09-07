@@ -37,7 +37,7 @@ export default function ChatMessage({
       <div
         className={`mr-2 w-24 ${
           sentBySystem ? 'bg-[#574b44]' : 'bg-[#8a654c]'
-        } border-primary-color border-[1.5px]`}
+        }`}
       >
         {!coalesce && (
           <Image
