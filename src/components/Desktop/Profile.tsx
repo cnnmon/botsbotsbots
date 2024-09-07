@@ -51,7 +51,7 @@ export default function Profile({
         className={`no-drag w-[100%]  ${
           sentBySystem ? 'bg-[#574b44]' : 'bg-[#8a654c]'
         }`}
-        src={images.gif}
+        src={images.full}
       />
       <div className="text-left my-4 w-full border-t-[1.5px] border-primary-color">
         <h1 className="line-clamp-1">{name}</h1>

@@ -41,7 +41,7 @@ export default function ChatMessage({
       >
         {!coalesce && (
           <Image
-            src={images.png}
+            src={images.cropped}
             placeholder="blur"
             alt={sender}
             className="button no-drag"
