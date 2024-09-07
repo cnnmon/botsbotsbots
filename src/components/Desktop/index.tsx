@@ -3,47 +3,22 @@ import Chat from '@/components/Chat';
 import Profile from '@/components/Desktop/Profile';
 import Window from '@/components/Desktop/Window';
 import { ControlPosition } from 'react-draggable';
-import useGameManager from '@/utils/manager';
+import useGameManager from '@/managers/game';
 import PlayerList from '@/components/Desktop/PlayerList';
 import {
   CharacterName,
   CHARACTERS,
   SYSTEM_CHARACTER,
 } from '@/constants/characters';
-import { useEffect } from 'react';
-import { loadGameState } from '@/utils/storage';
 import { LEVELS, LevelStage } from '@/utils/levels';
 import { BsCheck } from 'react-icons/bs';
+import useWindowManager from '@/managers/windows';
 
 export default function Desktop() {
-  const {
-    gameState,
-    setGameState,
-    openWindow,
-    exitWindow,
-    sendMessage,
-    restartLevel,
-    resetGame,
-    handleStartLevel,
-    handleStartVoting,
-    handleEndLevel,
-  } = useGameManager();
-  console.log(gameState);
+  const { gameState, sendMessage, restartLevel, resetGame, handleStartLevel } =
+    useGameManager();
 
-  useEffect(() => {
-    const savedGameState = loadGameState();
-    if (savedGameState) {
-      setGameState(savedGameState);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (gameState.stage === LevelStage.vote) {
-      handleStartVoting();
-    } else if (gameState.stage === LevelStage.results) {
-      handleEndLevel();
-    }
-  }, [gameState.stage]);
+  const { windows, openWindow, openWindows, exitWindow } = useWindowManager();
 
   function WindowContainer({
     name,
@@ -63,7 +38,7 @@ export default function Desktop() {
     return (
       <Window
         name={name}
-        windows={gameState.windows}
+        windows={windows}
         exitProfile={isExitable ? () => exitWindow(name) : undefined}
         style={{
           width: `${width}`,
@@ -113,8 +88,7 @@ export default function Desktop() {
                 zIndex: 0,
               }}
               onClick={() => {
-                openWindow(`level-${index}`);
-                openWindow('players');
+                openWindows(['players', `level-${index}`]);
               }}
             >
               level-{index}{' '}
@@ -172,7 +146,7 @@ export default function Desktop() {
       <WindowContainer
         name="settings"
         width="500px"
-        height="150px"
+        height="180px"
         defaultPosition={{ x: 200, y: 100 }}
         isExitable
         content={
