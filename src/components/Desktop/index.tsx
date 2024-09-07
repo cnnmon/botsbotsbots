@@ -11,8 +11,11 @@ import {
   SYSTEM_CHARACTER,
 } from '@/constants/characters';
 import { LEVELS, LevelStage } from '@/utils/levels';
-import { BsCheck } from 'react-icons/bs';
 import useWindowManager from '@/managers/windows';
+import Icon from './Icon';
+import { BsCheck } from 'react-icons/bs';
+import warning from '@/public/warning.png';
+import gear from '@/public/gear.png';
 
 export default function Desktop() {
   const { gameState, sendMessage, restartLevel, resetGame, handleStartLevel } =
@@ -77,20 +80,20 @@ export default function Desktop() {
       {LEVELS.map((_, index: number) => (
         <div key={`level-${index}`}>
           {gameState.level >= index && (
-            <button
-              className="button p-2 bg-header-color fixed border-[1.5px] border-primary-color text-primary-color hover:bg-primary-color hover:text-white left-8 w-28 flex items-center"
-              style={{
-                top: `${32 + index * 6}vh`,
-                zIndex: 0,
-              }}
+            <Icon
+              name={
+                <>
+                  level-{index}{' '}
+                  {(gameState.level > index ||
+                    gameState.stage === LevelStage.win) && <BsCheck />}
+                </>
+              }
+              symbol={warning}
+              position={{ left: 150 + index * 8, top: 250 + index * 6 }}
               onClick={() => {
                 openWindows(['players', `level-${index}`]);
               }}
-            >
-              level-{index}{' '}
-              {(gameState.level > index ||
-                gameState.stage === LevelStage.win) && <BsCheck />}
-            </button>
+            />
           )}
           <WindowContainer
             name={`level-${index}`}
@@ -113,12 +116,12 @@ export default function Desktop() {
         </div>
       ))}
 
-      <button
-        className="button p-2 bg-header-color fixed bottom-8 right-4 border-[1.5px] border-primary-color text-primary-color hover:bg-primary-color hover:text-white"
+      <Icon
+        name="settings"
+        symbol={gear}
+        position={{ bottom: 50, right: 50 }}
         onClick={() => openWindow('settings')}
-      >
-        settings
-      </button>
+      />
 
       {Object.keys(CHARACTERS).map((characterName, index) => {
         const name = characterName as CharacterName;
