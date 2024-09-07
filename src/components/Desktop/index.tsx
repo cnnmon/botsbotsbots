@@ -23,14 +23,12 @@ export default function Desktop() {
   function WindowContainer({
     name,
     width,
-    height,
     content,
     defaultPosition,
     isExitable,
   }: {
     name: string;
     width: string;
-    height: string;
     content: JSX.Element;
     defaultPosition: ControlPosition;
     isExitable?: boolean;
@@ -42,7 +40,6 @@ export default function Desktop() {
         exitProfile={isExitable ? () => exitWindow(name) : undefined}
         style={{
           width: `${width}`,
-          height: `${height}`,
           zIndex: 1,
         }}
         defaultPosition={defaultPosition}
@@ -67,7 +64,6 @@ export default function Desktop() {
       <WindowContainer
         name="players"
         width="280px"
-        height="43vh"
         defaultPosition={{ x: 520, y: 50 }}
         content={
           <PlayerList
@@ -99,7 +95,6 @@ export default function Desktop() {
           <WindowContainer
             name={`level-${index}`}
             width="550px"
-            height="70vh"
             defaultPosition={{ x: -80 + index * 60, y: -80 + index * 20 }}
             isExitable
             content={
@@ -135,7 +130,6 @@ export default function Desktop() {
             key={`window-${name}`}
             name={name}
             width="280px"
-            height="58vh"
             defaultPosition={{ x: 680, y: -120 + index * 60 }}
             isExitable
             content={<Profile character={character} isAlive={isAlive} />}
@@ -146,7 +140,6 @@ export default function Desktop() {
       <WindowContainer
         name="settings"
         width="500px"
-        height="180px"
         defaultPosition={{ x: 200, y: 100 }}
         isExitable
         content={

@@ -85,6 +85,7 @@ export default function PlayerList({
       </div>
       <List title="Alive" list={alive} openWindow={openWindow} isAlive />
       <List title="Eliminated" list={eliminated} openWindow={openWindow} />
+      <br />
     </div>
   );
 }
