@@ -142,15 +142,22 @@ export default function Desktop() {
 
       <WindowContainer
         name="settings"
-        width="500px"
+        width="600px"
         defaultPosition={{ x: 200, y: 100 }}
         isExitable
         content={
           <div className="bg-primary-color h-full text-white p-4 flex flex-col justify-center items-center">
-            <p className="text-center">
+            <p className="text-center w-3/4">
               {' '}
-              Made with TypeScript, Blender, and fish and chips.
-              <br />A happy work in progress by{' '}
+              made with{' '}
+              <a
+                href="https://github.com/cnnmon/botsbotsbots"
+                target="_blank"
+                className="underline"
+              >
+                typescript, aseprite, and fish and chips
+              </a>{' '}
+              by{' '}
               <a
                 href="https://www.tiffanywang.me/"
                 target="_blank"
@@ -160,13 +167,24 @@ export default function Desktop() {
               </a>
               .
               <br />
+              (special thanks to{' '}
               <a
-                href="https://github.com/cnnmon/botsbotsbots"
+                href="https://leyton.dev/"
                 target="_blank"
                 className="underline"
               >
-                github.com/cnnmon/botsbotsbots
-              </a>
+                leyton
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://erichli.com/"
+                target="_blank"
+                className="underline"
+              >
+                eric
+              </a>{' '}
+              for their help yay)
+              <br />
             </p>
             <button
               className="button mt-2 text-white hover:bg-white hover:text-primary-color w-1/2 border-[1.5px] border-white"
