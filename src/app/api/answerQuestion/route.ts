@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   const response = await getCompletion(prompt);
 
   if (!response) {
-    return null;
+    return;
   }
 
   return  NextResponse.json({ response });
