@@ -2,7 +2,6 @@
  * MANAGER provides game manager utils atop the game state reducer.
  */
 
-import { answerQuestion, voteOnHuman } from '@/utils/bots';
 import {
   CHARACTERS,
   GamePlayerName,
@@ -322,14 +321,21 @@ export default function useGameManager() {
         continue;
       }
 
-      const response = await answerQuestion(
-        CHARACTERS[playerName],
-        gameState.publicQuestion,
-        gameState.privateQuestion,
-        gameState.answers
-      );
-
-      if (!response) {
+      // call the answerQuestion API
+      const result = await fetch('/api/answerQuestion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          characterName: playerName,
+          publicQuestion: gameState.publicQuestion,
+          privateQuestion: gameState.privateQuestion,
+          answers: gameState.answers,
+        }),
+      });
+      
+      if (!result.ok) {
         sendMessage(
           new Message({
             sender: playerName,
@@ -337,6 +343,7 @@ export default function useGameManager() {
           })
         );
       } else {
+        const { response } = await result.json();
         sendMessage(
           new Message({
             sender: playerName,
@@ -365,37 +372,42 @@ export default function useGameManager() {
         continue;
       }
 
-      await wait(10000);
+      // call the voteOnHuman API
+      const result = await fetch('/api/voteOnHuman', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          characterName: playerName,
+          otherPlayers: gameState.alive
+            .filter((p) => p !== playerName)
+            .map((p) => CHARACTERS[p]),
+          publicQuestion: gameState.publicQuestion,
+          privateQuestion: gameState.privateQuestion,
+          answers: gameState.answers,
+        }),
+      });
 
-      const response = await voteOnHuman(
-        CHARACTERS[playerName],
-        gameState.alive
-          .filter((p) => p !== playerName)
-          .map((p) => CHARACTERS[p]),
-        gameState.publicQuestion,
-        gameState.privateQuestion,
-        gameState.answers
-      );
-
-      if (!response) {
+      if (!result.ok) {
         sendMessage(
           new Message({
             sender: playerName,
             content: 'I am unable to vote.',
           })
         );
-        continue;
+      } else {
+        const { response } = await result.json();
+        sendMessage(
+          new Message({
+            sender: playerName,
+            content: `I vote for ${response.vote.name}. ${response.reason}`,
+            metadata: {
+              vote: response.vote,
+            },
+          })
+        );
       }
-
-      sendMessage(
-        new Message({
-          sender: playerName,
-          content: `I vote for ${response.vote.name}. ${response.reason}`,
-          metadata: {
-            vote: response.vote,
-          },
-        })
-      );
     }
 
     // save once all generations are in
@@ -415,8 +427,6 @@ export default function useGameManager() {
       if (!vote.metadata) {
         continue;
       }
-
-      await wait(10000);
 
       const name = vote.metadata.vote.name;
       voteCounts[name] = (voteCounts[name] || 0) + 1;

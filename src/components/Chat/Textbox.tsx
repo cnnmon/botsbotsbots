@@ -1,3 +1,4 @@
+'use client';
 import { useEffect } from 'react';
 
 export const MAX_CHAT_LENGTH = 200;
