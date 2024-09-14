@@ -10,7 +10,7 @@ export async function POST(req: Request) {
 
   ${getChatHistory(publicQuestion, privateQuestion, answers)}
 
-  IMPORTANT: Answer the question within 100-200 characters, at a maximum of 200 characters.
+  Answer the question within 100-200 characters, at a maximum of 200 characters.
   
   PLEASE make your answer unique from other answers as much as possible. Do not prepend your response with your name.`;
 
