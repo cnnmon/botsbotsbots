@@ -451,7 +451,7 @@ export default function useGameManager() {
         votedPlayer = null;
       } else {
         // you lost...
-        voteMessage = 'Ah fuck';
+        voteMessage = 'Oh no';
       }
     }
 
