@@ -1,5 +1,5 @@
-import { getCharacterContext, getChatHistory, getCompletion } from "../utils";
-import { NextResponse } from "next/server";
+import { getCharacterContext, getChatHistory, getCompletion } from '../utils';
+import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -10,15 +10,12 @@ export async function POST(req: Request) {
 
   ${getChatHistory(publicQuestion, privateQuestion, answers)}
 
-  Answer the question within 100-200 characters, at a maximum of 200 characters.
-  
-  PLEASE make your answer unique from other answers as much as possible. Do not prepend your response with your name.`;
+  Answer uniquely in up to 150 characters. No name prefix.`;
 
   const response = await getCompletion(prompt);
-
   if (!response) {
     return;
   }
 
-  return  NextResponse.json({ response });
+  return NextResponse.json({ response });
 }

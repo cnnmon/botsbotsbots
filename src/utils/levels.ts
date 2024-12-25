@@ -42,13 +42,11 @@ export const LEVELS = [
     public: [],
     private: [GameElement.question],
   },
-  /* level 2 is hard enough lowkey
   {
     // level 3
     public: [],
     private: [GameElement.question, GameElement.behavior],
   },
-  */
 ];
 
 export type GameState = {
@@ -64,6 +62,7 @@ export type GameState = {
   privateQuestion: string;
 
   /* cache */
+  prompts: { public: string; private: string }[];
   answers: Message[];
   votes: Message[];
 };

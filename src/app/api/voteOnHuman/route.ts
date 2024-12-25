@@ -1,10 +1,30 @@
-import { getCharacterContext, getCharacterRoster, getChatHistory, getCompletion } from "../utils";
-import { CHARACTERS } from "@/constants/characters";
-import { NextResponse } from "next/server";
+import {
+  getCharacterContext,
+  getCharacterRoster,
+  getChatHistory,
+  getCompletion,
+} from '../utils';
+import { CHARACTERS } from '@/constants/characters';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { zodResponseFormat } from 'openai/helpers/zod';
+
+const responseSchema = z.object({
+  vote: z.string(),
+  reason: z.string(),
+});
+
+const responseFormat = zodResponseFormat(responseSchema, 'response');
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { characterName, otherPlayers, publicQuestion, privateQuestion, answers } = body;
+  const {
+    characterName,
+    otherPlayers,
+    publicQuestion,
+    privateQuestion,
+    answers,
+  } = body;
 
   const prompt = `
   ${getCharacterContext(characterName)}
@@ -13,26 +33,36 @@ export async function POST(req: Request) {
 
   ${getChatHistory(publicQuestion, privateQuestion, answers)}
 
-  Vote on who is most likely to be a human pretending to be a bot.
+  Analyze the chat history chronologically. Pay special attention to:
+  - Responses that directly copy previous answers
+  - Informal language
+  - Grammar, spelling, or formatting mistakes
+  - Responses that ignore the private question
 
-  Humans may copy earlier responses closely. They may be more informal or emotional. They may have grammar or spelling errors. If there is a private question, they may ignore it.
+  Vote on who exhibits the most human-like behavior.
   
-  Respond as a dictionary only in this format:
+  Respond as JSON only:
   {
     "vote": character's name (ex. Fred, Bob),
-    "reason": a reason for your vote, if any. keep within 100-150 characters.
+    "reason": brief explanation under 150 chars
   }`;
 
-  const completion = await getCompletion(prompt);
+  const completion = await getCompletion(prompt, responseFormat);
 
   try {
-    const { vote, reason } = JSON.parse(completion!);
+    if (!completion) {
+      return NextResponse.json({ error: 'No completion' }, { status: 500 });
+    }
+    const parsed = responseSchema.parse(JSON.parse(completion));
     const response = {
-      vote: CHARACTERS[vote as keyof typeof CHARACTERS],
-      reason,
+      vote: CHARACTERS[parsed.vote as keyof typeof CHARACTERS],
+      reason: parsed.reason,
     };
     return NextResponse.json({ response });
   } catch (error) {
-    return;
+    return NextResponse.json(
+      { error: 'Invalid response format' },
+      { status: 500 }
+    );
   }
 }

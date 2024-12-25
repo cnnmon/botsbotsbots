@@ -16,6 +16,9 @@ import Icon from './Icon';
 import { BsCheck } from 'react-icons/bs';
 import warning from '@/public/warning.png';
 import gear from '@/public/gear.png';
+import win from '@/public/win.png';
+import Winning from './Winning';
+import { useMemo } from 'react';
 
 export default function Desktop() {
   const { gameState, sendMessage, restartLevel, resetGame, handleStartLevel } =
@@ -51,6 +54,12 @@ export default function Desktop() {
     );
   }
 
+  const hasWon = useMemo(() => {
+    return (
+      gameState.stage === LevelStage.win && gameState.level >= LEVELS.length - 1
+    );
+  }, [gameState]);
+
   return (
     <>
       <div className="fixed top-16 left-8 no-drag">
@@ -77,6 +86,15 @@ export default function Desktop() {
         }
       />
 
+      {hasWon && (
+        <Icon
+          name="you won!"
+          symbol={win}
+          position={{ left: 50, bottom: 250 }}
+          onClick={() => openWindow('you won!')}
+        />
+      )}
+
       {LEVELS.map((_, index: number) => (
         <div key={`level-${index}`}>
           <Icon
@@ -88,7 +106,7 @@ export default function Desktop() {
               </div>
             }
             symbol={warning}
-            position={{ left: 150, top: 250 + index * 120 }}
+            position={{ left: 150, top: 220 + index * 120 }}
             onClick={() => {
               if (gameState.level >= index) {
                 openWindows(['players', `level-${index}`]);
@@ -143,6 +161,17 @@ export default function Desktop() {
           />
         );
       })}
+
+      <WindowContainer
+        name="you won!"
+        width="600px"
+        isExitable
+        defaultPosition={{
+          x: 0,
+          y: 0,
+        }}
+        content={<Winning gameState={gameState} resetGame={resetGame} />}
+      />
 
       <WindowContainer
         name="settings"

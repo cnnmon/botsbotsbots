@@ -66,6 +66,8 @@ type ActionType =
     };
 
 const handleSendMessage = (state: GameState, message: Message): GameState => {
+  const isSpecialLastTwo = state.alive.length === 2;
+
   if (message.sender !== SYSTEM_CHARACTER) {
     if (state.stage === LevelStage.answer) {
       // add the answer to the list of answers if the user has not answered yet
@@ -80,6 +82,13 @@ const handleSendMessage = (state: GameState, message: Message): GameState => {
     }
   }
 
+  if (isSpecialLastTwo && message.sender === SYSTEM_CHARACTER) {
+    if (message.metadata) {
+      console.log(message.metadata);
+      state.votes.push(message);
+    }
+  }
+
   if (
     state.stage === LevelStage.answer &&
     state.answers.length === state.alive.length
@@ -88,6 +97,13 @@ const handleSendMessage = (state: GameState, message: Message): GameState => {
   } else if (
     state.stage === LevelStage.waiting &&
     state.votes.length === state.alive.length - 1
+  ) {
+    state.stage = LevelStage.results;
+  } else if (
+    // special case for last two players
+    state.stage === LevelStage.waiting &&
+    state.votes.length === state.alive.length &&
+    isSpecialLastTwo
   ) {
     state.stage = LevelStage.results;
   }
@@ -104,7 +120,7 @@ const handleSendMessage = (state: GameState, message: Message): GameState => {
 const handleEndLevel = (
   state: GameState,
   mostVotedPlayerName: GamePlayerName | null
-) => {
+): GameState => {
   if (!mostVotedPlayerName) {
     // there was a tie!!
     return {
@@ -147,12 +163,19 @@ const handleEndLevel = (
   }
 
   // you move on to the next level! (if there is one?)
+  const prompts = [...(state.prompts || [])];
+  prompts.push({
+    public: state.publicQuestion,
+    private: state.privateQuestion,
+  });
+
   if (state.level === LEVELS.length - 1) {
     return {
       ...state,
       stage: LevelStage.win,
       eliminated,
       alive,
+      prompts,
       history: {
         ...state.history,
         [state.level]: [
@@ -170,6 +193,7 @@ const handleEndLevel = (
     ...state,
     eliminated,
     alive,
+    prompts,
     history: {
       ...state.history,
       [state.level]: [
@@ -358,6 +382,50 @@ export default function useGameManager() {
 
   const handleStartVoting = async () => {
     setStage(LevelStage.waiting);
+
+    // Special case: When only 2 players remain, system casts the deciding vote
+    if (gameState.alive.length === 2) {
+      sendMessage(
+        new Message({
+          sender: SYSTEM_CHARACTER,
+          content: `Final round. As system administrator, I will analyze and determine which of you is human.`,
+        })
+      );
+
+      // Call the systemVote API
+      const result = await fetch('/api/voteOnHuman', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          characterName: SYSTEM_CHARACTER,
+          otherPlayers: gameState.alive.map((p) => CHARACTERS[p]),
+          publicQuestion: gameState.publicQuestion,
+          privateQuestion: gameState.privateQuestion,
+          answers: gameState.answers,
+          gameHistory: gameState.history,
+        }),
+      });
+
+      if (result.ok) {
+        const { response } = await result.json();
+        sendMessage(
+          new Message({
+            sender: SYSTEM_CHARACTER,
+            content: `After analyzing all responses and behavior patterns, I determine that ${response.vote.name} is human. ${response.reason}`,
+            metadata: {
+              vote: response.vote,
+            },
+          })
+        );
+      }
+
+      // Skip the regular voting process
+      return commit();
+    }
+
+    // Regular voting process for more than 2 players
     sendMessage(
       new Message({
         sender: SYSTEM_CHARACTER,

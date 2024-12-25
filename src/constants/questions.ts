@@ -22,11 +22,12 @@ const questions = [
 const behaviors = [
   'Use a word twice that is not in the dictionary',
   'Write your response in the form of a haiku.',
+  'Rhyme your response.',
   'Start your response with a random, off-topic fact.',
   'Include an unexpected metaphor or simile in your response.',
   'Use a random historical reference that seems only tangentially related.',
   'Include an unrelated but intriguing trivia fact in your response.',
-  'Pretend you are a character from a famous novel or movie, without naming the character.',
+  'Pretend you are a character from a famous novel or movie.',
   'Text like a human teenager.',
 ];
 

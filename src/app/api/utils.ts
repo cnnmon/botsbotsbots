@@ -1,6 +1,7 @@
-import { Character } from "@/constants/characters";
-import { Message } from "@/utils/message";
-import { OpenAI } from "openai";
+import { Character } from '@/constants/characters';
+import { Message } from '@/utils/message';
+import { OpenAI } from 'openai';
+import { z } from 'zod';
 
 const MODEL = 'gpt-4o-mini-2024-07-18';
 
@@ -13,7 +14,7 @@ export function getCharacterContext(characterName: string): string {
   return `You are ${characterName}. You are a bot at a post-apocolyptic corporation. You are in a chatroom with other bots and only one human. If you successfully determine the human, you will win. If you fail, you will be terminated.`;
 }
 
-export const getCompletion = async (prompt: string) => {
+export const getCompletion = async (prompt: string, responseFormat?: any) => {
   const completion = await openai.chat.completions.create({
     model: MODEL,
     messages: [
@@ -22,10 +23,10 @@ export const getCompletion = async (prompt: string) => {
         content: prompt,
       },
     ],
+    response_format: responseFormat,
   });
   return completion.choices[0].message.content;
 };
-
 
 export function getChatHistory(
   publicQuestion: string,
@@ -48,7 +49,7 @@ export function getChatHistory(
 
   const chatHistoryAsString = answers.map((message) => {
     if (message.sender) {
-      return `${message.sender}: ${message.content}`;
+      return `${message.sender} said: "${message.content}"`;
     }
   });
 

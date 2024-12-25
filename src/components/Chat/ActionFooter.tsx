@@ -58,7 +58,18 @@ export default function ActionFooter({
   if (stage === LevelStage.waiting) {
     return (
       <div className="flex justify-center items-center h-16">
-        <p className="text-primary-color">you are waiting...</p>
+        <p className="text-primary-color text-center">
+          you are waiting...{' '}
+          <span className="fade-in">
+            try{' '}
+            <a
+              onClick={handleRestartLevel}
+              className="underline cursor-pointer"
+            >
+              restarting the level
+            </a>
+          </span>
+        </p>
       </div>
     );
   }
