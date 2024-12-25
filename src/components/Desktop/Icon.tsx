@@ -5,6 +5,7 @@ export default function Icon({
   symbol,
   position,
   onClick,
+  style,
 }: {
   name: React.ReactNode;
   symbol: StaticImageData;
@@ -15,6 +16,7 @@ export default function Icon({
     left?: number;
   };
   onClick: () => void;
+  style?: React.CSSProperties;
 }) {
   return (
     <div
@@ -26,6 +28,7 @@ export default function Icon({
         bottom: position.bottom,
         left: position.left,
         zIndex: 0,
+        ...style,
       }}
       onClick={onClick}
     >

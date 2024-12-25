@@ -23,7 +23,6 @@ import {
   LevelStage,
   loadLevel,
 } from '@/utils/levels';
-import { wait } from '@/constants/misc';
 
 export enum Action {
   SEND_MESSAGE = 'SEND_MESSAGE',
@@ -334,7 +333,7 @@ export default function useGameManager() {
           answers: gameState.answers,
         }),
       });
-      
+
       if (!result.ok) {
         sendMessage(
           new Message({

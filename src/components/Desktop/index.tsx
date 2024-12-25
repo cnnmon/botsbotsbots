@@ -79,22 +79,26 @@ export default function Desktop() {
 
       {LEVELS.map((_, index: number) => (
         <div key={`level-${index}`}>
-          {gameState.level >= index && (
-            <Icon
-              name={
-                <div className="flex items-center justify-center w-full">
-                  level-{index}{' '}
-                  {(gameState.level > index ||
-                    gameState.stage === LevelStage.win) && <BsCheck />}
-                </div>
-              }
-              symbol={warning}
-              position={{ left: 150, top: 250 + index * 120 }}
-              onClick={() => {
+          <Icon
+            name={
+              <div className="flex items-center justify-center w-full">
+                level-{index}{' '}
+                {(gameState.level > index ||
+                  gameState.stage === LevelStage.win) && <BsCheck />}
+              </div>
+            }
+            symbol={warning}
+            position={{ left: 150, top: 250 + index * 120 }}
+            onClick={() => {
+              if (gameState.level >= index) {
                 openWindows(['players', `level-${index}`]);
-              }}
-            />
-          )}
+              }
+            }}
+            style={{
+              opacity: gameState.level < index ? 0.3 : 1,
+              cursor: gameState.level < index ? 'not-allowed' : 'pointer',
+            }}
+          />
           <WindowContainer
             name={`level-${index}`}
             width="550px"
