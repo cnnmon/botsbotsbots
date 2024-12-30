@@ -10,8 +10,9 @@
     "format": "npx prettier --write ."
   },
   "dependencies": {
+    "@next/third-parties": "^14.0.5-canary.59",
     "install": "^0.13.0",
-    "next": "14.2.4",
+    "next": "^14.2.22",
     "openai": "^4.77.0",
     "react": "^18",
     "react-dom": "^18",
