@@ -24,6 +24,7 @@ import {
   loadLevel,
 } from '@/utils/levels';
 import { voteOnHuman } from '@/utils/vote';
+import { answerQuestion } from '@/utils/answer';
 
 export enum Action {
   SEND_MESSAGE = 'SEND_MESSAGE',
@@ -345,21 +346,9 @@ export default function useGameManager() {
         continue;
       }
 
-      // call the answerQuestion API
-      const result = await fetch('/api/answerQuestion', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          characterName: playerName,
-          publicQuestion: gameState.publicQuestion,
-          privateQuestion: gameState.privateQuestion,
-          answers: gameState.answers,
-        }),
-      });
+      const result = await answerQuestion(gameState, playerName);
 
-      if (!result.ok) {
+      if (!result) {
         sendMessage(
           new Message({
             sender: playerName,
@@ -367,11 +356,10 @@ export default function useGameManager() {
           })
         );
       } else {
-        const { response } = await result.json();
         sendMessage(
           new Message({
             sender: playerName,
-            content: response,
+            content: result,
           })
         );
       }
