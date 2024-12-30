@@ -23,6 +23,7 @@ import {
   LevelStage,
   loadLevel,
 } from '@/utils/levels';
+import { voteOnHuman } from '@/utils/vote';
 
 export enum Action {
   SEND_MESSAGE = 'SEND_MESSAGE',
@@ -393,29 +394,27 @@ export default function useGameManager() {
       );
 
       // Call the systemVote API
-      const result = await fetch('/api/voteOnHuman', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          characterName: SYSTEM_CHARACTER,
-          otherPlayers: gameState.alive.map((p) => CHARACTERS[p]),
-          publicQuestion: gameState.publicQuestion,
-          privateQuestion: gameState.privateQuestion,
-          answers: gameState.answers,
-          gameHistory: gameState.history,
-        }),
-      });
+      const result = await voteOnHuman(
+        gameState,
+        SYSTEM_CHARACTER,
+        gameState.answers
+      );
 
-      if (result.ok) {
-        const { response } = await result.json();
+      if (!result) {
         sendMessage(
           new Message({
             sender: SYSTEM_CHARACTER,
-            content: `After analyzing all responses and behavior patterns, I determine that ${response.vote.name} is human. ${response.reason}`,
+            content: `I am unable to determine which of you is human.`,
+          })
+        );
+      } else {
+        const { vote, reason } = result;
+        sendMessage(
+          new Message({
+            sender: SYSTEM_CHARACTER,
+            content: `After analyzing all responses and behavior patterns, I determine that ${vote} is human. ${reason}`,
             metadata: {
-              vote: response.vote,
+              vote,
             },
           })
         );
@@ -440,23 +439,13 @@ export default function useGameManager() {
       }
 
       // call the voteOnHuman API
-      const result = await fetch('/api/voteOnHuman', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          characterName: playerName,
-          otherPlayers: gameState.alive
-            .filter((p) => p !== playerName)
-            .map((p) => CHARACTERS[p]),
-          publicQuestion: gameState.publicQuestion,
-          privateQuestion: gameState.privateQuestion,
-          answers: gameState.answers,
-        }),
-      });
+      const result = await voteOnHuman(
+        gameState,
+        playerName,
+        gameState.answers
+      );
 
-      if (!result.ok) {
+      if (!result) {
         sendMessage(
           new Message({
             sender: playerName,
@@ -464,11 +453,11 @@ export default function useGameManager() {
           })
         );
       } else {
-        const { response } = await result.json();
+        const response = result;
         sendMessage(
           new Message({
             sender: playerName,
-            content: `I vote for ${response.vote.name}. ${response.reason}`,
+            content: `I vote for ${response.vote}. ${response.reason}`,
             metadata: {
               vote: response.vote,
             },
@@ -480,53 +469,60 @@ export default function useGameManager() {
     // save once all generations are in
     commit();
   };
-
   const handleEndLevel = async () => {
-    // tally votes
     const voteCounts = {} as Record<string, number>;
     let maxVote = 0;
-    let votedPlayer: GamePlayerName | null = YOU_CHARACTER;
-    let votedPlayerThatIsNotYou: GamePlayerName = gameState.alive.find(
-      (name) => name !== votedPlayer
-    )!;
+    let votedPlayer: GamePlayerName | null = null;
 
+    // tally votes
     for (const vote of gameState.votes) {
-      if (!vote.metadata) {
+      if (!vote.metadata?.vote) {
         continue;
       }
 
-      const name = vote.metadata.vote.name;
+      const name = vote.metadata.vote;
       voteCounts[name] = (voteCounts[name] || 0) + 1;
 
       if (voteCounts[name] > maxVote) {
         maxVote = voteCounts[name];
         votedPlayer = name;
-        if (name !== YOU_CHARACTER) {
-          votedPlayerThatIsNotYou = name;
-        }
       }
     }
 
-    // send your "vote" automatically, which is either the most voted player (eliminating them) or the second most voted player
-    let voteMessage = `I vote for ${votedPlayerThatIsNotYou}.`;
+    // If no votes were counted, default to a random player
+    if (!votedPlayer) {
+      votedPlayer =
+        gameState.alive.find((name) => name !== YOU_CHARACTER) || YOU_CHARACTER;
+    }
+
+    // Determine your vote message
+    let yourVote: GamePlayerName | null = null;
     if (votedPlayer === YOU_CHARACTER) {
-      if (voteCounts[votedPlayerThatIsNotYou] + 1 > maxVote) {
-        // your vote swayed the decision!
-        votedPlayer = votedPlayerThatIsNotYou;
-      } else if (voteCounts[votedPlayerThatIsNotYou] + 1 == maxVote) {
-        // there is a tie
-        votedPlayer = null;
+      // If you're being voted out, try to vote for someone else
+      const otherPlayer = gameState.alive.find(
+        (name) => name !== YOU_CHARACTER
+      );
+      if (otherPlayer) {
+        yourVote = otherPlayer;
+        // Only change the voted player if your vote would make a difference
+        if (voteCounts[otherPlayer] + 1 >= maxVote) {
+          votedPlayer = otherPlayer;
+        }
       } else {
-        // you lost...
-        voteMessage = 'Oh no';
+        yourVote = null;
       }
+    } else {
+      yourVote = votedPlayer;
     }
 
     // send your "vote"
     sendMessage(
       new Message({
         sender: YOU_CHARACTER,
-        content: voteMessage,
+        content: yourVote ? `I vote for ${yourVote}.` : 'Oh no...',
+        metadata: {
+          vote: yourVote,
+        },
       })
     );
 

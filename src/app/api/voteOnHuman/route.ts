@@ -54,11 +54,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No completion' }, { status: 500 });
     }
     const parsed = responseSchema.parse(JSON.parse(completion));
-    const response = {
-      vote: CHARACTERS[parsed.vote as keyof typeof CHARACTERS],
-      reason: parsed.reason,
-    };
-    return NextResponse.json({ response });
+    return NextResponse.json({
+      response: {
+        vote: CHARACTERS[parsed.vote as keyof typeof CHARACTERS].name,
+        reason: parsed.reason,
+      },
+    });
   } catch (error) {
     return NextResponse.json(
       { error: 'Invalid response format' },
