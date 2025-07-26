@@ -132,6 +132,13 @@ export default function Desktop() {
                 }
                 handleStartLevel={handleStartLevel}
                 handleRestartLevel={restartLevel}
+                handleNextLevel={() => {
+                  if (gameState.level >= index + 1) {
+                    openWindows(['players', `level-${index + 1}`]);
+                  }
+                }}
+                currentLevel={index}
+                totalLevels={LEVELS.length}
               />
             }
           />

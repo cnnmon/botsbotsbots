@@ -12,6 +12,9 @@ export default function Chat({
   openWindow,
   handleStartLevel,
   handleRestartLevel,
+  handleNextLevel,
+  currentLevel,
+  totalLevels,
 }: {
   stage: LevelStage;
   messages: Message[];
@@ -19,6 +22,9 @@ export default function Chat({
   openWindow: (name: string) => void;
   handleStartLevel: () => void;
   handleRestartLevel: () => void;
+  handleNextLevel: () => void;
+  currentLevel: number;
+  totalLevels: number;
 }) {
   const [chatboxText, setChatboxText] = useState('');
   const chatScrollRef = useRef<HTMLDivElement>(null);
@@ -91,6 +97,10 @@ export default function Chat({
         stage={stage}
         handleStartLevel={handleStartLevel}
         handleRestartLevel={handleRestartLevel}
+        handleNextLevel={handleNextLevel}
+        currentLevel={currentLevel}
+        totalLevels={totalLevels}
+        openWindow={openWindow}
         chatboxText={chatboxText}
         setChatboxText={setChatboxText}
         sendMessage={sendMessage}

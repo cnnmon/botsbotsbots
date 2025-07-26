@@ -43,13 +43,13 @@ function TopBarContainer({
         <div
           className="frame border-l-[1.5px] border-primary-color absolute top-0 right-0 h-8 button border-b-[1.5px]"
           style={{ width: '50px' }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            exitProfile();
+          }}
         >
-          <Image
-            src={exitSvg}
-            alt=""
-            className="no-drag"
-            onClick={exitProfile}
-          />
+          <Image src={exitSvg} alt="" className="no-drag" />
         </div>
       </>
     );

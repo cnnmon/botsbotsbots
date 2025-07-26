@@ -95,7 +95,8 @@ h2 {
 
 a:hover {
   color: var(--primary-color);
-  background-color: var(--header-color)
+  background-color: var(--header-color);
+  opacity: 0.5;
 }
 
 .fade-in {
