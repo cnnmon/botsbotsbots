@@ -55,14 +55,17 @@ function voteForPlayerIfTheyCopied(answers: Message[]): {
 export async function voteOnHuman(
   gameState: GameState,
   playerName: string,
-  answers: Message[]
+  answers: Message[],
+  skipCopyCheck: boolean = false
 ): Promise<{
   vote: string;
   reason: string;
 } | null> {
-  const copyVote = voteForPlayerIfTheyCopied(answers);
-  if (copyVote) {
-    return copyVote;
+  if (!skipCopyCheck) {
+    const copyVote = voteForPlayerIfTheyCopied(answers);
+    if (copyVote) {
+      return copyVote;
+    }
   }
 
   // call the voteOnHuman API

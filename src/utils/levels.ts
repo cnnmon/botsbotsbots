@@ -19,6 +19,7 @@ export enum LevelStage {
   results = 'results', // tallying votes
   win = 'win',
   lose = 'lose',
+  question = 'question', // for custom level: waiting for user to provide the question
 }
 
 export enum GameElement {
@@ -65,6 +66,15 @@ export type GameState = {
   prompts: { public: string; private: string }[];
   answers: Message[];
   votes: Message[];
+
+  /* custom level state */
+  customLevel: {
+    messages: Message[];
+    stage: LevelStage;
+    customQuestion: string;
+    answers: Message[];
+    votes: Message[];
+  };
 };
 
 export const getInitialLevelMessages = (levelNumber: number): Message[] => {
@@ -98,6 +108,18 @@ export const loadLevel = (
       return acc;
     }, {} as { [key: number]: Message[] });
     state.level = 0;
+    state.customLevel = {
+      messages: [
+        new Message({
+          sender: SYSTEM_CHARACTER,
+          content: `Training protocol initiated. Fred, respond with a test question for human detection calibration.`,
+        }),
+      ],
+      stage: LevelStage.question,
+      customQuestion: '',
+      answers: [],
+      votes: [],
+    };
   }
 
   state.history[levelNumber] = initialMessages;

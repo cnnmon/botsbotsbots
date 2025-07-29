@@ -39,7 +39,7 @@ export default function ActionFooter({
     );
   }
 
-  if (stage === LevelStage.answer) {
+  if (stage === LevelStage.answer || stage === LevelStage.question) {
     return (
       <Textbox
         chatboxText={chatboxText}
@@ -67,6 +67,36 @@ export default function ActionFooter({
     return (
       <div className="flex justify-center items-center h-16">
         <p className="text-primary-color text-center">you are waiting...</p>
+      </div>
+    );
+  }
+
+  if (stage === LevelStage.vote) {
+    return (
+      <div className="flex justify-center items-center h-16">
+        <p className="text-primary-color text-center">bots are voting...</p>
+      </div>
+    );
+  }
+
+  if (stage === LevelStage.results) {
+    // For custom levels, show restart button
+    if (currentLevel === -1) {
+      return (
+        <div className="flex justify-center items-center h-16">
+          <button
+            className="button border-[1.5px] border-primary-color p-2 w-1/2 text-primary-color hover:bg-primary-color hover:text-white"
+            onClick={handleRestartLevel}
+          >
+            Restart?
+          </button>
+        </div>
+      );
+    }
+    // For regular levels, show results
+    return (
+      <div className="flex justify-center items-center h-16">
+        <p className="text-primary-color text-center">tallying results...</p>
       </div>
     );
   }

@@ -195,7 +195,10 @@ export const gameReducer = (
     case Action.RESET_GAME:
       return resetGameState();
     case Action.RESTART_LEVEL:
-      return loadLevel(state.level, state);
+      const restartedState = loadLevel(state.level, state);
+      // Save the restarted state
+      saveGameState(restartedState);
+      return restartedState;
     case Action.SET_GAME_STATE:
       return action.payload;
     case Action.SET_STAGE:

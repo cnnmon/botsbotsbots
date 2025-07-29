@@ -7,6 +7,7 @@ import {
   GamePlayerName,
   SYSTEM_CHARACTER,
   YOU_CHARACTER,
+  GAME_PLAYERS,
 } from '@/constants/characters';
 import { useEffect, useReducer } from 'react';
 import { Message } from '@/utils/message';
@@ -35,6 +36,9 @@ export enum Action {
   SET_STAGE = 'SET_STAGE',
   END_LEVEL = 'END_LEVEL',
   COMMIT = 'COMMIT',
+  START_CUSTOM_LEVEL = 'START_CUSTOM_LEVEL',
+  SEND_CUSTOM_MESSAGE = 'SEND_CUSTOM_MESSAGE',
+  SET_CUSTOM_STAGE = 'SET_CUSTOM_STAGE',
 }
 
 type ActionType =
@@ -65,6 +69,18 @@ type ActionType =
     }
   | {
       type: Action.COMMIT;
+    }
+  | {
+      type: Action.START_CUSTOM_LEVEL;
+      payload: string;
+    }
+  | {
+      type: Action.SEND_CUSTOM_MESSAGE;
+      payload: Message;
+    }
+  | {
+      type: Action.SET_CUSTOM_STAGE;
+      payload: LevelStage;
     };
 
 const handleSendMessage = (state: GameState, message: Message): GameState => {
@@ -115,6 +131,115 @@ const handleSendMessage = (state: GameState, message: Message): GameState => {
     history: {
       ...state.history,
       [state.level]: [...state.history[state.level], message],
+    },
+  };
+};
+
+const handleStartCustomLevel = (
+  state: GameState,
+  customQuestion: string
+): GameState => {
+  if (!customQuestion) {
+    // Initialize custom level with system asking for question
+    return {
+      ...state,
+      customLevel: {
+        messages: [
+          new Message({
+            sender: SYSTEM_CHARACTER,
+            content: `Training protocol initiated. Fred, respond with a test question for human detection calibration.`,
+          }),
+        ],
+        stage: LevelStage.question,
+        customQuestion: '',
+        answers: [],
+        votes: [],
+      },
+    };
+  }
+
+  // User has provided a question, start the actual custom level
+  return {
+    ...state,
+    customLevel: {
+      messages: [
+        ...state.customLevel.messages,
+        new Message({
+          sender: SYSTEM_CHARACTER,
+          content: `Protocol parameters set. All units respond to query: ${customQuestion}`,
+        }),
+      ],
+      stage: LevelStage.answer,
+      customQuestion,
+      answers: [],
+      votes: [],
+    },
+  };
+};
+
+const handleSendCustomMessage = (
+  state: GameState,
+  message: Message
+): GameState => {
+  const customLevel = { ...state.customLevel };
+  let newMessages = [...customLevel.messages, message];
+
+  if (message.sender !== SYSTEM_CHARACTER) {
+    if (
+      customLevel.stage === LevelStage.question &&
+      message.sender === YOU_CHARACTER
+    ) {
+      // User is providing the custom question
+      customLevel.customQuestion = message.content;
+      customLevel.stage = LevelStage.answer;
+      customLevel.answers = [];
+      customLevel.votes = [];
+
+      // Add system message acknowledging the question
+      newMessages.push(
+        new Message({
+          sender: SYSTEM_CHARACTER,
+          content: `Protocol parameters set. All units respond to query: ${message.content}`,
+        })
+      );
+    } else if (customLevel.stage === LevelStage.answer) {
+      // add the answer to the list of answers if the user has not answered yet
+      if (!customLevel.answers.find((msg) => msg.sender === message.sender)) {
+        customLevel.answers.push(message);
+      }
+    } else if (message.metadata && message.sender !== YOU_CHARACTER) {
+      // add the vote to the list of votes if the user has not voted yet
+      if (!customLevel.votes.find((msg) => msg.sender === message.sender)) {
+        customLevel.votes.push(message);
+      }
+    }
+  }
+
+  // Check if we should move to voting stage
+  if (
+    customLevel.stage === LevelStage.answer &&
+    customLevel.answers.length === Object.keys(GAME_PLAYERS).length
+  ) {
+    customLevel.stage = LevelStage.vote;
+  } else if (
+    customLevel.stage === LevelStage.waiting &&
+    customLevel.votes.length === Object.keys(GAME_PLAYERS).length - 1
+  ) {
+    customLevel.stage = LevelStage.results;
+    // Add completion message when transitioning to results
+    newMessages.push(
+      new Message({
+        sender: SYSTEM_CHARACTER,
+        content: `All votes have been cast! Custom level complete. You can restart to try a new question.`,
+      })
+    );
+  }
+
+  return {
+    ...state,
+    customLevel: {
+      ...customLevel,
+      messages: newMessages,
     },
   };
 };
@@ -221,7 +346,10 @@ export const gameReducer = (
     case Action.RESET_GAME:
       return resetGameState();
     case Action.RESTART_LEVEL:
-      return loadLevel(state.level, state);
+      const restartedState = loadLevel(state.level, state);
+      // Save the restarted state
+      saveGameState(restartedState);
+      return restartedState;
     case Action.SET_GAME_STATE:
       return action.payload;
     case Action.SET_STAGE:
@@ -234,6 +362,18 @@ export const gameReducer = (
     case Action.COMMIT:
       saveGameState(state);
       return state;
+    case Action.START_CUSTOM_LEVEL:
+      return handleStartCustomLevel(state, action.payload);
+    case Action.SEND_CUSTOM_MESSAGE:
+      return handleSendCustomMessage(state, action.payload);
+    case Action.SET_CUSTOM_STAGE:
+      return {
+        ...state,
+        customLevel: {
+          ...state.customLevel,
+          stage: action.payload,
+        },
+      };
     default:
       return state;
   }
@@ -256,6 +396,13 @@ export default function useGameManager() {
       handleEndLevel();
     }
   }, [gameState.stage]);
+
+  // Handle custom level stage transitions
+  useEffect(() => {
+    if (gameState.customLevel.stage === LevelStage.vote) {
+      handleStartCustomVoting();
+    }
+  }, [gameState.customLevel.stage]);
 
   const setGameState = (newState: GameState) => {
     dispatch({ type: Action.SET_GAME_STATE, payload: newState });
@@ -520,6 +667,71 @@ export default function useGameManager() {
     commit();
   };
 
+  const startCustomLevel = (customQuestion: string) => {
+    dispatch({ type: Action.START_CUSTOM_LEVEL, payload: customQuestion });
+  };
+
+  const sendCustomMessage = (message: Message) => {
+    dispatch({ type: Action.SEND_CUSTOM_MESSAGE, payload: message });
+    scrollToBottom();
+    // Auto-commit custom level state to ensure persistence
+    setTimeout(() => commit(), 100);
+  };
+
+  const setCustomStage = (stage: LevelStage) => {
+    dispatch({ type: Action.SET_CUSTOM_STAGE, payload: stage });
+  };
+
+  const handleStartCustomVoting = async () => {
+    // Set to waiting stage during bot voting (prevents re-triggering)
+    setCustomStage(LevelStage.waiting);
+
+    dispatch({
+      type: Action.SEND_CUSTOM_MESSAGE,
+      payload: new Message({
+        sender: SYSTEM_CHARACTER,
+        content: `All answers have been submitted. Please vote for the player you think is the human.`,
+      }),
+    });
+
+    // Generate bot votes
+    for (const playerName of Object.keys(GAME_PLAYERS) as GamePlayerName[]) {
+      if (playerName === YOU_CHARACTER) {
+        continue;
+      }
+
+      const result = await voteOnHuman(
+        gameState,
+        playerName,
+        gameState.customLevel.answers,
+        true // Skip copy check for custom level
+      );
+
+      if (!result) {
+        sendCustomMessage(
+          new Message({
+            sender: playerName,
+            content: 'I am unable to vote.',
+          })
+        );
+      } else {
+        const response = result;
+        sendCustomMessage(
+          new Message({
+            sender: playerName,
+            content: `I vote for ${response.vote}. ${response.reason}`,
+            metadata: {
+              vote: response.vote,
+            },
+          })
+        );
+      }
+    }
+
+    // Stage transition to results is handled automatically in handleSendCustomMessage
+    // when all votes are cast
+  };
+
   return {
     gameState,
     setGameState,
@@ -529,5 +741,9 @@ export default function useGameManager() {
     sendMessage,
     resetGame,
     restartLevel,
+    startCustomLevel,
+    sendCustomMessage,
+    setCustomStage,
+    handleStartCustomVoting,
   };
 }

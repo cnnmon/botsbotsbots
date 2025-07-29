@@ -35,6 +35,13 @@ export default function Chat({
     focusTextbox();
   }, []);
 
+  // Auto-scroll to bottom when new messages are added
+  useEffect(() => {
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   const sendMessage = () => {
     const newMessage = new Message({
       sender: YOU_CHARACTER,
@@ -66,10 +73,13 @@ export default function Chat({
     <div className="h-full flex-col">
       <div
         ref={chatScrollRef}
+        data-chat-scroll
         className={`overflow-y-auto p-2 py-4 border-primary-color border-b-[1.5px]`}
         style={{
           height: `calc(70vh - ${
-            stage === LevelStage.answer ? '130px' : '100px'
+            stage === LevelStage.answer || stage === LevelStage.question
+              ? '130px'
+              : '100px'
           })`,
           minHeight: '275px',
         }}

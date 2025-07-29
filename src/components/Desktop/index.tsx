@@ -17,12 +17,21 @@ import { BsCheck } from 'react-icons/bs';
 import warning from '@/public/warning.png';
 import gear from '@/public/gear.png';
 import win from '@/public/win.png';
+import fishking from '@/public/fishking.png';
 import Winning from './Winning';
+import CustomLevel from '@/components/CustomLevel';
 import { useMemo } from 'react';
 
 export default function Desktop() {
-  const { gameState, sendMessage, restartLevel, resetGame, handleStartLevel } =
-    useGameManager();
+  const {
+    gameState,
+    sendMessage,
+    restartLevel,
+    resetGame,
+    handleStartLevel,
+    startCustomLevel,
+    sendCustomMessage,
+  } = useGameManager();
 
   const { windows, openWindow, openWindows, exitWindow } = useWindowManager();
 
@@ -58,7 +67,7 @@ export default function Desktop() {
     return (
       gameState.stage === LevelStage.win && gameState.level >= LEVELS.length - 1
     );
-  }, [gameState]);
+  }, [gameState.stage, gameState.level]);
 
   return (
     <>
@@ -94,6 +103,13 @@ export default function Desktop() {
           onClick={() => openWindow('you won!')}
         />
       )}
+
+      <Icon
+        name="custom level"
+        symbol={fishking}
+        position={{ left: 50, bottom: 400 }}
+        onClick={() => openWindow('custom-0')}
+      />
 
       {LEVELS.map((_, index: number) => (
         <div key={`level-${index}`}>
@@ -233,6 +249,21 @@ export default function Desktop() {
               Reset Game
             </button>
           </div>
+        }
+      />
+
+      <WindowContainer
+        name="custom-0"
+        width="550px"
+        defaultPosition={{ x: 300, y: 150 }}
+        isExitable
+        content={
+          <CustomLevel
+            openWindow={openWindow}
+            gameState={gameState}
+            startCustomLevel={startCustomLevel}
+            sendCustomMessage={sendCustomMessage}
+          />
         }
       />
     </>
