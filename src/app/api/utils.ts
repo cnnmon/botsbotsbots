@@ -1,9 +1,8 @@
 import { Character } from '@/constants/characters';
 import { Message } from '@/utils/message';
 import { OpenAI } from 'openai';
-import { z } from 'zod';
 
-const MODEL = 'gpt-4o-mini-2024-07-18';
+const MODEL = 'gpt-5-mini';
 
 export const openai = new OpenAI({
   apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
