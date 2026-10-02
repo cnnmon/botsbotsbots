@@ -22,6 +22,7 @@ export const getCompletion = async (prompt: string, responseFormat?: any) => {
         content: prompt,
       },
     ],
+    reasoning_effort: 'low',
     response_format: responseFormat,
   });
   return completion.choices[0].message.content;
