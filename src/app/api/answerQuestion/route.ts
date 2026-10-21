@@ -12,10 +12,15 @@ export async function POST(req: Request) {
 
   Answer uniquely in up to 150 characters. No name prefix.`;
 
-  const response = await getCompletion(prompt);
-  if (!response) {
-    return;
-  }
+  try {
+    const response = await getCompletion(prompt);
+    if (!response) {
+      return NextResponse.json({ error: 'No completion' }, { status: 500 });
+    }
 
-  return NextResponse.json({ response });
+    return NextResponse.json({ response });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'No completion';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

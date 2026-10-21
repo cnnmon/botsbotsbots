@@ -4,17 +4,20 @@ import { OpenAI } from 'openai';
 
 const MODEL = 'gpt-5-mini';
 
-export const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true,
-});
+function getOpenAI() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY is missing');
+  }
+  return new OpenAI({ apiKey });
+}
 
 export function getCharacterContext(characterName: string): string {
   return `You are ${characterName}. You are a bot at a post-apocolyptic corporation. You are in a chatroom with other bots and only one human. If you successfully determine the human, you will win. If you fail, you will be terminated.`;
 }
 
 export const getCompletion = async (prompt: string, responseFormat?: any) => {
-  const completion = await openai.chat.completions.create({
+  const completion = await getOpenAI().chat.completions.create({
     model: MODEL,
     messages: [
       {
@@ -23,7 +26,8 @@ export const getCompletion = async (prompt: string, responseFormat?: any) => {
       },
     ],
     reasoning_effort: 'low',
-    response_format: responseFormat,
+    max_completion_tokens: 500,
+    ...(responseFormat ? { response_format: responseFormat } : {}),
   });
   return completion.choices[0].message.content;
 };
